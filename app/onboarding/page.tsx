@@ -29,17 +29,19 @@ export default function OnboardingPage() {
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError || !user) throw new Error('No autenticado')
 
-      // 1. Create clinic
-      const { data: clinic, error: clinicError } = await supabase
+      // Generate clinic ID client-side to avoid RLS SELECT check on INSERT...RETURNING
+      const clinicId = crypto.randomUUID()
+
+      // 1. Create clinic (no .select() to avoid the SELECT RLS check before professional exists)
+      const { error: clinicError } = await supabase
         .from('clinics')
         .insert({
+          id: clinicId,
           name: form.clinic_name,
           owner_email: user.email!,
           city: form.city || null,
           phone: form.phone || null,
         })
-        .select()
-        .single()
 
       if (clinicError) throw clinicError
 
@@ -47,7 +49,7 @@ export default function OnboardingPage() {
       const { error: profError } = await supabase
         .from('professionals')
         .insert({
-          clinic_id: clinic.id,
+          clinic_id: clinicId,
           user_id: user.id,
           full_name: form.professional_name,
           role: 'owner',
@@ -59,7 +61,7 @@ export default function OnboardingPage() {
       const { error: profileError } = await supabase
         .from('clinic_profiles')
         .insert({
-          clinic_id: clinic.id,
+          clinic_id: clinicId,
           formality_level: 'friendly',
           pronoun_usage: 'voseo',
           emoji_usage: 'minimal',
