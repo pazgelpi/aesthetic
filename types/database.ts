@@ -21,7 +21,7 @@ export type Database = {
           created_at: string
           updated_at: string
         }
-        Insert: NullableToOptional<Omit<Database['public']['Tables']['clinics']['Row'], 'id' | 'created_at' | 'updated_at'>>
+        Insert: NullableToOptional<Omit<Database['public']['Tables']['clinics']['Row'], 'id' | 'created_at' | 'updated_at'>> & { id?: string }
         Update: Partial<Database['public']['Tables']['clinics']['Insert']>
         Relationships: []
       }
