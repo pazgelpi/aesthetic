@@ -159,11 +159,11 @@ create table comparisons (
 create table message_templates (
   id uuid primary key default gen_random_uuid(),
   template_type text not null unique check (template_type in (
-    'check_in_day_5',
-    'photo_request_day_14',
-    'check_in_day_30',
-    'retreatment_reminder',
-    'seasonal_tip'
+    'day0_welcome',
+    'day3_checkin',
+    'day14_photo_request',
+    'day30_progress',
+    'day90_reactivation'
   )),
   trigger_offset_days int,
   prompt_instructions text not null,
@@ -273,27 +273,27 @@ $$ language plpgsql security definer;
 
 insert into message_templates (template_type, trigger_offset_days, prompt_instructions) values
 (
-  'check_in_day_5',
-  5,
-  'Tono: cálido, breve, sin urgencia. Goal: que la paciente sienta acompañamiento + recordatorio sutil de home care. Estructura: saludo + recordatorio post-tratamiento + cierre con disponibilidad. Longitud: 1-2 frases, máximo 180 caracteres.'
+  'day0_welcome',
+  0,
+  'Enviá un mensaje de bienvenida cálido post-tratamiento. Recordá los cuidados inmediatos más importantes (no frotarse, no hacer ejercicio intenso hoy, no alcohol). Máx 4 oraciones.'
 ),
 (
-  'photo_request_day_14',
+  'day3_checkin',
+  3,
+  'Hacé un check-in a los 3 días. Preguntá cómo se siente, si notó los primeros resultados, si tiene alguna duda. Sé empática y accesible. Máx 3 oraciones.'
+),
+(
+  'day14_photo_request',
   14,
-  'Tono: positivo, motivador, action-oriented. Goal: que la paciente saque la foto de seguimiento. DEBE incluir: el placeholder {capture_url} (será reemplazado). Mencionar que toma "1 minuto". Longitud: 2-3 frases.'
+  'Pedile que saque fotos de los resultados a los 14 días. Explicá brevemente por qué es importante documentar el progreso. Incluí el link de captura si está disponible. Máx 3 oraciones.'
 ),
 (
-  'check_in_day_30',
+  'day30_progress',
   30,
-  'Tono: educativo + cálido. Goal: reinforce que el resultado debería estar pleno + chequear si hay algo que reportar. NO pedir nada concreto, solo ofrecer disponibilidad. Longitud: 2 frases.'
+  'Celebrá los resultados al mes. Preguntá cómo se siente con los resultados y si está pensando en el próximo tratamiento. Sé entusiasta pero no presiones. Máx 3 oraciones.'
 ),
 (
-  'retreatment_reminder',
-  null,
-  'Tono: helpful, no pushy. Goal: que la paciente se proactive sobre agendar. Mencionar timing aproximado del re-tratamiento y ofrecer coordinar. NO mencionar precio ni promociones. Longitud: 2-3 frases.'
-),
-(
-  'seasonal_tip',
-  null,
-  'Tono: educativo + cercano. Goal: presence de marca + tip útil estacional. Tip relevante a la estación actual. NO promocionar productos específicos. Longitud: 2-3 frases.'
+  'day90_reactivation',
+  90,
+  'Recordá a la paciente que se aproxima el momento ideal para su próximo tratamiento. Invitala a agendar turno. Sé sutil y no presiones. Máx 2 oraciones.'
 );

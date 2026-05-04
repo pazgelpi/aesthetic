@@ -116,14 +116,14 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-7 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Seguimiento de tus pacientes activas</p>
+          <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Seguimiento de tus pacientes activas</p>
         </div>
         <Link href="/treatments/new">
-          <Button>
+          <Button className="rounded-xl shadow-sm">
             <Plus className="mr-2 h-4 w-4" />
             Nuevo tratamiento
           </Button>
