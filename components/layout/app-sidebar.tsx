@@ -12,6 +12,7 @@ import {
   LogOut,
   MessageSquare,
   Sparkles,
+  FolderUp,
 } from 'lucide-react'
 import { Clinic, Professional } from '@/types/database'
 import { toast } from 'sonner'
@@ -21,6 +22,7 @@ const navItems = [
   { href: '/patients', icon: Users, label: 'Pacientes' },
   { href: '/treatments', icon: Syringe, label: 'Tratamientos' },
   { href: '/messages', icon: MessageSquare, label: 'Mensajes' },
+  { href: '/import', icon: FolderUp, label: 'Importar historia' },
 ]
 
 interface AppSidebarProps {

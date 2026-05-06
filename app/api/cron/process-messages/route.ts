@@ -3,6 +3,8 @@ import { NextRequest } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { buildClinicSystemPrompt } from '@/lib/ai/build-system-prompt'
 import { ScheduledMessage } from '@/types/database'
+import { getGoogleClient } from '@/lib/google/client'
+import { sendEmail, buildFollowUpHtml } from '@/lib/google/gmail'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -39,7 +41,7 @@ export async function GET(req: NextRequest) {
 
       const { data: patient } = await supabase
         .from('patients')
-        .select('id, first_name, phone_e164')
+        .select('id, first_name, phone_e164, email')
         .eq('id', msg.patient_id)
         .single()
 
@@ -80,6 +82,41 @@ export async function GET(req: NextRequest) {
 
       if (patient?.phone_e164) {
         await sendWhatsApp(patient.phone_e164, messageText)
+      }
+
+      // Gmail — parallel channel if connected and patient has email
+      if (patient?.email) {
+        try {
+          const { data: clinic } = await supabase
+            .from('clinics')
+            .select('name')
+            .eq('id', msg.clinic_id)
+            .single()
+
+          const { data: professional } = await supabase
+            .from('professionals')
+            .select('id')
+            .eq('clinic_id', msg.clinic_id)
+            .eq('role', 'owner')
+            .maybeSingle()
+
+          if (professional) {
+            const auth = await getGoogleClient(professional.id)
+            const html = buildFollowUpHtml({
+              messageText,
+              clinicName: clinic?.name ?? 'Tu clínica',
+              patientFirstName: patient.first_name ?? 'Paciente',
+            })
+            await sendEmail(auth, {
+              to: patient.email,
+              subject: 'Mensaje de tu clínica — Aesthetic IQ',
+              html,
+              fromName: clinic?.name ?? 'Tu clínica',
+            })
+          }
+        } catch {
+          // Gmail send is best-effort — never block the main WhatsApp flow
+        }
       }
 
       await supabase

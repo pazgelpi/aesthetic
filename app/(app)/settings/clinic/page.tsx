@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { ClinicWizard } from '@/components/wizard/clinic-wizard'
+import { GoogleIntegration } from '@/components/settings/google-integration'
 
 export const revalidate = 0
 
@@ -16,28 +18,17 @@ export default async function ClinicSettingsPage() {
     .single()
   if (!professional) redirect('/onboarding')
 
-  const { data: clinic } = await supabase
-    .from('clinics')
-    .select('id, name, city, phone')
-    .eq('id', professional.clinic_id)
-    .single()
+  const admin = createAdminClient()
+  const [clinicRes, profileRes, protocolsRes, documentsRes, oauthRes] = await Promise.all([
+    supabase.from('clinics').select('id, name, city, phone').eq('id', professional.clinic_id).single(),
+    supabase.from('clinic_profiles').select('*').eq('clinic_id', professional.clinic_id).single(),
+    supabase.from('clinic_protocols').select('*').eq('clinic_id', professional.clinic_id),
+    supabase.from('clinic_documents').select('*').eq('clinic_id', professional.clinic_id).order('created_at', { ascending: false }),
+    // oauth_credentials may not be in generated types yet — use raw query with cast
+    admin.from('oauth_credentials' as string).select('google_email').eq('professional_id', professional.id).eq('provider', 'google').maybeSingle(),
+  ])
 
-  const { data: profile } = await supabase
-    .from('clinic_profiles')
-    .select('*')
-    .eq('clinic_id', professional.clinic_id)
-    .single()
-
-  const { data: protocols } = await supabase
-    .from('clinic_protocols')
-    .select('*')
-    .eq('clinic_id', professional.clinic_id)
-
-  const { data: documents } = await supabase
-    .from('clinic_documents')
-    .select('*')
-    .eq('clinic_id', professional.clinic_id)
-    .order('created_at', { ascending: false })
+  const oauthData = oauthRes.data as { google_email: string | null } | null
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -47,11 +38,17 @@ export default async function ClinicSettingsPage() {
           Configurá tu perfil de voz, protocolos y documentos. La AI del producto opera con esta información.
         </p>
       </div>
+
+      <GoogleIntegration
+        connected={!!oauthData}
+        googleEmail={oauthData?.google_email}
+      />
+
       <ClinicWizard
-        clinic={clinic ?? { id: professional.clinic_id, name: '', city: null, phone: null }}
-        profile={profile}
-        protocols={protocols ?? []}
-        documents={documents ?? []}
+        clinic={clinicRes.data ?? { id: professional.clinic_id, name: '', city: null, phone: null }}
+        profile={profileRes.data}
+        protocols={protocolsRes.data ?? []}
+        documents={documentsRes.data ?? []}
         clinicId={professional.clinic_id}
         professionalName={professional.full_name}
       />

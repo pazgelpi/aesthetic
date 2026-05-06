@@ -1,6 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { PatientPortal } from '@/components/portal/patient-portal'
+import { generateProgressStory } from '@/lib/ai/generate-progress-story'
+import { differenceInDays } from 'date-fns'
 
 export const revalidate = 0
 
@@ -46,19 +48,44 @@ export default async function PortalPage({
 
   if (!treatmentRes.data || !patientRes.data) notFound()
 
-  const { data: protocol } = await supabase
-    .from('clinic_protocols')
-    .select('*')
-    .eq('clinic_id', treatmentRes.data.clinic_id)
-    .eq('treatment_type', treatmentRes.data.treatment_type)
-    .maybeSingle()
+  const clinicId = treatmentRes.data.clinic_id
+
+  const [protocol, clinicRes, profileRes] = await Promise.all([
+    supabase
+      .from('clinic_protocols')
+      .select('*')
+      .eq('clinic_id', clinicId)
+      .eq('treatment_type', treatmentRes.data.treatment_type)
+      .maybeSingle(),
+    supabase.from('clinics').select('name').eq('id', clinicId).single(),
+    supabase
+      .from('clinic_profiles')
+      .select('pronoun_usage, formality_level, signature_template')
+      .eq('clinic_id', clinicId)
+      .maybeSingle(),
+  ])
 
   // Log adherence visit
   await supabase.from('adherence_logs').insert({
     patient_id: captureToken.patient_id,
-    clinic_id: treatmentRes.data.clinic_id,
+    clinic_id: clinicId,
     logged_at: new Date().toISOString(),
   })
+
+  const story = comparisonRes.data
+    ? await generateProgressStory({
+        patientFirstName: patientRes.data.first_name,
+        treatmentType: treatmentRes.data.treatment_type as 'toxin' | 'filler',
+        areasText: treatmentRes.data.areas_treated.join(', '),
+        daysSinceTreatment: differenceInDays(new Date(), new Date(treatmentRes.data.treated_at)),
+        metricsJson: comparisonRes.data.metrics_json as Record<string, unknown>,
+        aiSynthesisClinic: comparisonRes.data.ai_synthesis_clinic,
+        clinicName: clinicRes.data?.name ?? 'Tu clínica',
+        pronoun: profileRes.data?.pronoun_usage ?? 'tuteo',
+        formality: profileRes.data?.formality_level ?? 'friendly',
+        signature: profileRes.data?.signature_template ?? null,
+      })
+    : null
 
   return (
     <PatientPortal
@@ -69,7 +96,8 @@ export default async function PortalPage({
       photoSessions={sessionsRes.data ?? []}
       comparison={comparisonRes.data ?? null}
       recommendations={recommendationsRes.data ?? []}
-      protocol={protocol ?? null}
+      protocol={protocol.data ?? null}
+      story={story}
       initialTab={purpose === 'photo' ? 'photos' : 'plan'}
     />
   )

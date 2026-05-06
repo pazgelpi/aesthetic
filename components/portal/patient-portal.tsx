@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PhotoCapture } from '@/components/capture/photo-capture'
+import { ProgressStoryCard } from '@/components/portal/progress-story-card'
+import { StoryOutput } from '@/lib/ai/generate-progress-story'
 import { Calendar, Camera, CheckCircle2, Sparkles, BookOpen } from 'lucide-react'
 
 interface Props {
@@ -18,6 +20,7 @@ interface Props {
   comparison: Comparison | null
   recommendations: Recommendation[]
   protocol: ClinicProtocol | null
+  story?: StoryOutput | null
   initialTab: string
 }
 
@@ -30,6 +33,7 @@ export function PatientPortal({
   comparison,
   recommendations,
   protocol,
+  story,
   initialTab,
 }: Props) {
   const [tab, setTab] = useState(initialTab)
@@ -99,7 +103,11 @@ export function PatientPortal({
               </Card>
             )}
 
-            {comparison && (
+            {story && (
+              <ProgressStoryCard story={story} treatmentId={treatment.id} token={token} />
+            )}
+
+            {comparison && !story && (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm">Tus resultados</CardTitle>

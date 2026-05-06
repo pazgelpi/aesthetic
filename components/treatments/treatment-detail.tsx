@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { Camera, Share2, Calendar, Package, Layers, StickyNote, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
+import { Camera, Share2, Calendar, Package, Layers, StickyNote, Loader2, ExternalLink, Copy, Check, HardDrive, CalendarCheck } from 'lucide-react'
 
 interface Props {
   treatment: Treatment
@@ -28,6 +28,10 @@ export function TreatmentDetail({ treatment, patient, photoSessions, comparison,
   const [generatingToken, setGeneratingToken] = useState(false)
   const [copied, setCopied] = useState(false)
   const [activeToken, setActiveToken] = useState(captureToken)
+  const [calendarLoading, setCalendarLoading] = useState(false)
+  const [calendarSynced, setCalendarSynced] = useState(false)
+  const [driveLoading, setDriveLoading] = useState(false)
+  const [driveSynced, setDriveSynced] = useState(false)
 
   const preSession = photoSessions.find((s) => s.session_type === 'pre')
   const post14Session = photoSessions.find((s) => s.session_type === 'post_14d')
@@ -69,6 +73,57 @@ export function TreatmentDetail({ treatment, patient, photoSessions, comparison,
     await navigator.clipboard.writeText(portalUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  async function syncCalendar() {
+    setCalendarLoading(true)
+    try {
+      const res = await fetch(`/api/calendar/sync-treatment/${treatment.id}`, { method: 'POST' })
+      if (!res.ok) {
+        const { error } = await res.json()
+        if (error === 'Google account not connected') {
+          toast.error('Conectá tu cuenta de Google en Ajustes → Clínica primero')
+        } else {
+          toast.error(error ?? 'Error al sincronizar')
+        }
+        return
+      }
+      setCalendarSynced(true)
+      toast.success('Eventos creados en Google Calendar')
+    } catch {
+      toast.error('Error al sincronizar con Calendar')
+    } finally {
+      setCalendarLoading(false)
+    }
+  }
+
+  async function exportToDrive() {
+    setDriveLoading(true)
+    try {
+      const res = await fetch('/api/drive/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ treatmentId: treatment.id, type: 'photos' }),
+      })
+      if (!res.ok) {
+        const { error } = await res.json()
+        if (error === 'Google account not connected') {
+          toast.error('Conectá tu cuenta de Google en Ajustes → Clínica primero')
+        } else {
+          toast.error(error ?? 'Error al exportar')
+        }
+        return
+      }
+      const { folderUrl } = await res.json()
+      setDriveSynced(true)
+      toast.success('Fotos exportadas a Google Drive', {
+        action: folderUrl ? { label: 'Ver carpeta', onClick: () => window.open(folderUrl) } : undefined,
+      })
+    } catch {
+      toast.error('Error al exportar a Drive')
+    } finally {
+      setDriveLoading(false)
+    }
   }
 
   const typeLabel = treatment.treatment_type === 'toxin' ? 'Toxina Botulínica' : 'Filler Facial'
@@ -153,6 +208,36 @@ export function TreatmentDetail({ treatment, patient, photoSessions, comparison,
           </CardContent>
         </Card>
       )}
+
+      {/* Google Actions */}
+      <div className="flex flex-wrap gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={syncCalendar}
+          disabled={calendarLoading || calendarSynced}
+        >
+          {calendarLoading
+            ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sincronizando...</>
+            : calendarSynced
+              ? <><CalendarCheck className="mr-2 h-4 w-4 text-green-500" />En Calendar</>
+              : <><Calendar className="mr-2 h-4 w-4" />Agregar a Calendar</>}
+        </Button>
+        {photoSessions.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToDrive}
+            disabled={driveLoading || driveSynced}
+          >
+            {driveLoading
+              ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Exportando...</>
+              : driveSynced
+                ? <><HardDrive className="mr-2 h-4 w-4 text-green-500" />En Drive</>
+                : <><HardDrive className="mr-2 h-4 w-4" />Exportar fotos a Drive</>}
+          </Button>
+        )}
+      </div>
 
       <Tabs defaultValue="photos">
         <TabsList>
