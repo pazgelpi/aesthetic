@@ -1,10 +1,20 @@
+'use client'
+
+import { useRef, useState } from 'react'
 import { DEMO_PATIENTS, DEMO_TREATMENTS, DEMO_COMPARISONS, DEMO_STORY, DEMO_CLINIC } from '@/lib/demo/data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { formatDate } from '@/lib/utils'
-import { Calendar, MessageCircle, Clock, CheckCircle2, ChevronRight, Download } from 'lucide-react'
+import { Calendar, MessageCircle, Clock, CheckCircle2, Download, Camera, Loader2, Upload } from 'lucide-react'
+import { toast } from 'sonner'
+
+const PHOTO_SLOTS = [
+  { key: 'front', label: 'Frontal' },
+  { key: '45', label: '45°' },
+  { key: 'contracted', label: 'Contraída' },
+] as const
 
 export default function DemoPortalPage() {
   const patient = DEMO_PATIENTS[0] // Sofía
@@ -14,6 +24,41 @@ export default function DemoPortalPage() {
 
   const nextAppointment = new Date(treatment.expected_re_treatment_at!)
   const daysUntil = Math.round((nextAppointment.getTime() - Date.now()) / 864e5)
+
+  // Photo capture state
+  const [photos, setPhotos] = useState<Partial<Record<'front' | '45' | 'contracted', string>>>({})
+  const [uploading, setUploading] = useState(false)
+  const [photosSent, setPhotosSent] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [activeSlot, setActiveSlot] = useState<'front' | '45' | 'contracted' | null>(null)
+
+  const allSlotsFilled = PHOTO_SLOTS.every(s => photos[s.key])
+
+  function handleSlotClick(key: 'front' | '45' | 'contracted') {
+    if (photosSent) return
+    setActiveSlot(key)
+    fileInputRef.current?.click()
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !activeSlot) return
+    const url = URL.createObjectURL(file)
+    setPhotos(prev => ({ ...prev, [activeSlot]: url }))
+    setActiveSlot(null)
+    e.target.value = ''
+  }
+
+  function handleSendPhotos() {
+    setUploading(true)
+    setTimeout(() => {
+      setUploading(false)
+      setPhotosSent(true)
+      toast.success('Fotos recibidas ✓', {
+        description: 'La Dra. Ruiz las revisará en las próximas 24hs.',
+      })
+    }, 2000)
+  }
 
   return (
     <div className="p-6 max-w-md mx-auto space-y-5">
@@ -26,7 +71,7 @@ export default function DemoPortalPage() {
         <p className="text-sm text-muted-foreground mt-1">Tu espacio de seguimiento post-tratamiento</p>
       </div>
 
-      {/* DC-111: Mi próximo turno — prominente */}
+      {/* Mi próximo turno — DC-111 */}
       <Card className="border-violet-200 bg-gradient-to-br from-violet-50 to-white">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2 text-violet-700">
@@ -60,7 +105,91 @@ export default function DemoPortalPage() {
         </CardContent>
       </Card>
 
-      {/* DC-112: Mi Informe de Evolución (renamed from Historia de Progreso) */}
+      {/* Photo capture card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Camera className="h-4 w-4" />
+            Subir fotos de seguimiento
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            {photosSent
+              ? 'La doctora recibió tus fotos. Te contactará pronto.'
+              : 'Sacate una foto en cada ángulo con buena luz natural.'}
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+
+          {/* Photo slots */}
+          <div className="grid grid-cols-3 gap-2">
+            {PHOTO_SLOTS.map(({ key, label }) => {
+              const preview = photos[key]
+              const sent = photosSent
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleSlotClick(key)}
+                  disabled={sent || uploading}
+                  className="aspect-[3/4] rounded-xl overflow-hidden border-2 transition-all relative focus:outline-none"
+                  style={{
+                    borderColor: sent ? '#22c55e' : preview ? 'oklch(0.55 0.18 290)' : 'var(--border)',
+                    background: preview ? 'transparent' : 'var(--muted)',
+                  }}
+                >
+                  {sent ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-50">
+                      <CheckCircle2 className="h-6 w-6 text-green-500" />
+                    </div>
+                  ) : preview ? (
+                    <img src={preview} alt={label} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                      <Camera className="h-5 w-5 text-muted-foreground/50" />
+                      <span className="text-[10px] text-muted-foreground">{label}</span>
+                    </div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex justify-between text-[10px] text-muted-foreground px-1">
+            <span>Frontal</span><span>45°</span><span>Contraída</span>
+          </div>
+
+          {/* Send button */}
+          {!photosSent && (
+            <Button
+              className="w-full rounded-xl"
+              size="sm"
+              disabled={!allSlotsFilled || uploading}
+              onClick={handleSendPhotos}
+            >
+              {uploading
+                ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enviando fotos...</>
+                : <><Upload className="mr-2 h-4 w-4" />Enviar fotos a la doctora</>
+              }
+            </Button>
+          )}
+
+          {photosSent && (
+            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-xl px-4 py-3">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              Fotos enviadas correctamente
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Mi Informe de Evolución — DC-112 */}
       <div
         className="rounded-2xl p-5 space-y-4"
         style={{ background: 'linear-gradient(160deg, #18142a 0%, #2d1b4e 100%)', border: '1px solid rgba(124,58,237,0.3)' }}
@@ -84,7 +213,6 @@ export default function DemoPortalPage() {
         <p className="text-xs italic" style={{ color: 'rgba(255,255,255,0.45)' }}>
           &ldquo;{story.ctaText}&rdquo;
         </p>
-        {/* Share as secondary option (DC-112) */}
         <div className="flex gap-2 pt-1">
           <Button size="sm" className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs" disabled>
             Coordinar próximo paso

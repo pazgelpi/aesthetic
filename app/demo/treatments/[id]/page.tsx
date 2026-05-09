@@ -12,7 +12,8 @@ import { Separator } from '@/components/ui/separator'
 import { formatDate } from '@/lib/utils'
 import {
   Camera, Calendar, HardDrive, Package, Layers, StickyNote,
-  CalendarCheck, CheckCircle2, ExternalLink, Globe,
+  CalendarCheck, CheckCircle2, ExternalLink, Globe, Loader2,
+  Sparkles, Brain,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -25,10 +26,47 @@ export default function DemoTreatmentPage({ params }: { params: Promise<{ id: st
   const photos = DEMO_PHOTO_SESSIONS[id as keyof typeof DEMO_PHOTO_SESSIONS]
   const comparison = DEMO_COMPARISONS[id as keyof typeof DEMO_COMPARISONS] ?? null
 
-  const [calSynced] = useState(!!treatment.google_calendar_event_id)
+  const [calSynced, setCalSynced] = useState(!!treatment.google_calendar_event_id)
+  const [calLoading, setCalLoading] = useState(false)
+  const [calEvents, setCalEvents] = useState(!!treatment.google_calendar_event_id)
   const [driveSynced, setDriveSynced] = useState(false)
 
+  // AI generation simulation
+  const [generating, setGenerating] = useState(false)
+  const [generatingPhase, setGeneratingPhase] = useState(0)
+  const [showComparison, setShowComparison] = useState(!!comparison)
+
   const typeLabel = treatment.treatment_type === 'toxin' ? 'Toxina Botulínica' : 'Filler Facial'
+
+  const retratamientoDate = treatment.expected_re_treatment_at
+    ? new Date(new Date(treatment.expected_re_treatment_at).getTime() - 7 * 24 * 60 * 60 * 1000)
+    : null
+
+  function handleAddCalendar() {
+    setCalLoading(true)
+    setTimeout(() => {
+      setCalLoading(false)
+      setCalSynced(true)
+      setCalEvents(true)
+    }, 1500)
+  }
+
+  const generatingPhases = [
+    'Analizando landmarks faciales...',
+    'Computando métricas por zona...',
+    'Generando síntesis con IA...',
+  ]
+
+  function handleGenerateComparison() {
+    setGenerating(true)
+    setGeneratingPhase(0)
+    setTimeout(() => setGeneratingPhase(1), 800)
+    setTimeout(() => setGeneratingPhase(2), 1600)
+    setTimeout(() => {
+      setGenerating(false)
+      setShowComparison(true)
+    }, 2500)
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -79,49 +117,86 @@ export default function DemoTreatmentPage({ params }: { params: Promise<{ id: st
         </CardContent></Card>
       )}
 
-      {/* Google Actions — DC-109 Calendar mock */}
-      <div className="flex flex-wrap gap-3">
-        {calSynced ? (
-          <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
-            <CalendarCheck className="h-4 w-4 text-green-600 shrink-0" />
-            <span className="text-xs font-medium text-green-700">Sincronizado con Google Calendar</span>
-            <Button variant="outline" size="sm" className="h-7 text-xs border-green-300 text-green-700 hover:bg-green-100" disabled>
-              Ver evento <ExternalLink className="ml-1 h-3 w-3" />
+      {/* Google Calendar — DC-109 */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-3">
+          {calSynced ? (
+            <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
+              <CalendarCheck className="h-4 w-4 text-green-600 shrink-0" />
+              <span className="text-xs font-medium text-green-700">Sincronizado con Google Calendar</span>
+              <Button variant="outline" size="sm" className="h-7 text-xs border-green-300 text-green-700 hover:bg-green-100" disabled>
+                Ver evento <ExternalLink className="ml-1 h-3 w-3" />
+              </Button>
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" onClick={handleAddCalendar} disabled={calLoading}>
+              {calLoading
+                ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sincronizando...</>
+                : <><Calendar className="mr-2 h-4 w-4" />Agregar a Calendar</>
+              }
             </Button>
+          )}
+          {photos && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={driveSynced}
+              onClick={() => { setDriveSynced(true); toast.success('Fotos exportadas a Google Drive ✓', { description: `Carpeta: Aesthetic IQ / ${patient?.full_name}` }) }}
+            >
+              {driveSynced
+                ? <><CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />En Drive</>
+                : <><HardDrive className="mr-2 h-4 w-4" />Exportar fotos a Drive</>
+              }
+            </Button>
+          )}
+          <Link href="/demo/portal">
+            <Button variant="outline" size="sm">
+              <Globe className="mr-2 h-4 w-4" />
+              Ver portal del paciente
+            </Button>
+          </Link>
+        </div>
+
+        {/* Calendar events expanded view */}
+        {calEvents && treatment.expected_re_treatment_at && (
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Eventos creados en Google Calendar</p>
+            <div className="space-y-2">
+              {/* Event 1 — treatment */}
+              <div className="flex items-center gap-3 rounded-xl bg-violet-50 border border-violet-100 px-4 py-3">
+                <div className="w-3 h-3 rounded-full bg-violet-500 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate">{typeLabel} · {patient?.first_name}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(treatment.treated_at)} · 1 hora</p>
+                </div>
+                <Button variant="ghost" size="sm" className="h-7 text-xs text-violet-600" disabled>
+                  Ver <ExternalLink className="ml-1 h-3 w-3" />
+                </Button>
+              </div>
+              {/* Event 2 — retreatment reminder */}
+              {retratamientoDate && (
+                <div className="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
+                  <div className="w-3 h-3 rounded-full bg-amber-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">Retratamiento · {patient?.first_name} (recordatorio)</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(retratamientoDate.toISOString())} · recordatorio 7 días antes</p>
+                  </div>
+                  <Button variant="ghost" size="sm" className="h-7 text-xs text-amber-600" disabled>
+                    Ver <ExternalLink className="ml-1 h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
-        ) : (
-          <Button variant="outline" size="sm" onClick={() => toast.success('Eventos creados en Google Calendar ✓', { description: 'Tratamiento + recordatorio de retratamiento agregados' })}>
-            <Calendar className="mr-2 h-4 w-4" />
-            Agregar a Calendar
-          </Button>
         )}
-        {photos && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={driveSynced}
-            onClick={() => { setDriveSynced(true); toast.success('Fotos exportadas a Google Drive ✓', { description: 'Carpeta: Aesthetic IQ / Sofía Ramírez' }) }}
-          >
-            {driveSynced
-              ? <><CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />En Drive</>
-              : <><HardDrive className="mr-2 h-4 w-4" />Exportar fotos a Drive</>
-            }
-          </Button>
-        )}
-        <Link href="/demo/portal">
-          <Button variant="outline" size="sm">
-            <Globe className="mr-2 h-4 w-4" />
-            Ver portal del paciente
-          </Button>
-        </Link>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="photos">
         <TabsList>
           <TabsTrigger value="photos">Fotos ({photos ? Object.values(photos).filter(Boolean).length : 0})</TabsTrigger>
-          <TabsTrigger value="comparison" disabled={!comparison}>
-            Comparativa{comparison ? '' : ' (pendiente)'}
+          <TabsTrigger value="comparison">
+            Comparativa IA{comparison || showComparison ? '' : ' (pendiente)'}
           </TabsTrigger>
         </TabsList>
 
@@ -155,54 +230,112 @@ export default function DemoTreatmentPage({ params }: { params: Promise<{ id: st
         </TabsContent>
 
         <TabsContent value="comparison" className="pt-4">
-          {comparison && (
-            <div className="space-y-4">
-              <Card>
-                <CardHeader><CardTitle className="text-base">Síntesis para la paciente</CardTitle></CardHeader>
-                <CardContent><p className="text-sm leading-relaxed">{comparison.ai_synthesis_patient}</p></CardContent>
-              </Card>
-              <Card>
-                <CardHeader><CardTitle className="text-base">Síntesis clínica</CardTitle></CardHeader>
-                <CardContent><p className="text-sm leading-relaxed">{comparison.ai_synthesis_clinic}</p></CardContent>
-              </Card>
-              <Card>
-                <CardHeader><CardTitle className="text-base">Métricas objetivas</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { key: 'glabela_change_pct', label: 'Glabela' },
-                      { key: 'frontal_change_pct', label: 'Frontal' },
-                      { key: 'patas_gallo_left_change_pct', label: 'Patas de gallo izq.' },
-                      { key: 'patas_gallo_right_change_pct', label: 'Patas de gallo der.' },
-                    ].map(({ key, label }) => {
-                      const val = (comparison.metrics_json as Record<string, number>)[key]
-                      if (val == null) return null
-                      const improved = val < 0
-                      return (
-                        <div key={key} className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">{label}</span>
-                          <Badge variant={improved ? 'default' : 'secondary'} className="text-xs">
-                            {improved ? '↓' : '↑'} {Math.abs(Math.round(val))}% {improved ? 'mejora' : 'cambio'}
-                          </Badge>
-                        </div>
-                      )
-                    })}
-                    {(comparison.metrics_json as Record<string, number>).symmetry_change != null && (
-                      <>
-                        <Separator />
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Simetría</span>
-                          <Badge variant="outline" className="text-xs">
-                            +{Math.round((comparison.metrics_json as Record<string, number>).symmetry_change * 100) / 100} pts
-                          </Badge>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="space-y-4">
+            {/* Generate button */}
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {showComparison ? 'Análisis generado por IA sobre fotos pre y post.' : 'Generá el análisis comparativo con IA.'}
+              </p>
+              <Button
+                size="sm"
+                variant={showComparison ? 'outline' : 'default'}
+                onClick={handleGenerateComparison}
+                disabled={generating}
+                className="shrink-0"
+              >
+                {generating
+                  ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{generatingPhases[generatingPhase]}</>
+                  : showComparison
+                  ? <><Sparkles className="mr-2 h-4 w-4" />Regenerar análisis IA</>
+                  : <><Brain className="mr-2 h-4 w-4" />Generar comparativa IA</>
+                }
+              </Button>
             </div>
-          )}
+
+            {/* AI generation loading skeleton */}
+            {generating && (
+              <div className="rounded-2xl border border-violet-100 bg-violet-50/50 p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-violet-600 animate-pulse" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-violet-800">{generatingPhases[generatingPhase]}</p>
+                    <div className="flex gap-1">
+                      {generatingPhases.map((_, i) => (
+                        <div
+                          key={i}
+                          className={`h-1 rounded-full transition-all duration-500 ${i <= generatingPhase ? 'bg-violet-500 w-8' : 'bg-violet-200 w-4'}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2 animate-pulse">
+                  <div className="h-3 bg-violet-100 rounded w-3/4" />
+                  <div className="h-3 bg-violet-100 rounded w-full" />
+                  <div className="h-3 bg-violet-100 rounded w-5/6" />
+                </div>
+              </div>
+            )}
+
+            {/* Comparison results */}
+            {!generating && showComparison && comparison && (
+              <>
+                <Card>
+                  <CardHeader><CardTitle className="text-base">Síntesis para la paciente</CardTitle></CardHeader>
+                  <CardContent><p className="text-sm leading-relaxed">{comparison.ai_synthesis_patient}</p></CardContent>
+                </Card>
+                <Card>
+                  <CardHeader><CardTitle className="text-base">Síntesis clínica</CardTitle></CardHeader>
+                  <CardContent><p className="text-sm leading-relaxed">{comparison.ai_synthesis_clinic}</p></CardContent>
+                </Card>
+                <Card>
+                  <CardHeader><CardTitle className="text-base">Métricas objetivas</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {[
+                        { key: 'glabela_change_pct', label: 'Glabela' },
+                        { key: 'frontal_change_pct', label: 'Frontal' },
+                        { key: 'patas_gallo_left_change_pct', label: 'Patas de gallo izq.' },
+                        { key: 'patas_gallo_right_change_pct', label: 'Patas de gallo der.' },
+                      ].map(({ key, label }) => {
+                        const val = (comparison.metrics_json as Record<string, number>)[key]
+                        if (val == null) return null
+                        const improved = val < 0
+                        return (
+                          <div key={key} className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">{label}</span>
+                            <Badge variant={improved ? 'default' : 'secondary'} className="text-xs">
+                              {improved ? '↓' : '↑'} {Math.abs(Math.round(val))}% {improved ? 'mejora' : 'cambio'}
+                            </Badge>
+                          </div>
+                        )
+                      })}
+                      {(comparison.metrics_json as Record<string, number>).symmetry_change != null && (
+                        <>
+                          <Separator />
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Simetría</span>
+                            <Badge variant="outline" className="text-xs">
+                              +{Math.round((comparison.metrics_json as Record<string, number>).symmetry_change * 100) / 100} pts
+                            </Badge>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+            {!generating && !showComparison && (
+              <div className="rounded-2xl border border-dashed border-border p-10 text-center space-y-2">
+                <Brain className="h-8 w-8 text-muted-foreground/40 mx-auto" />
+                <p className="text-sm text-muted-foreground">Hacé click en "Generar comparativa IA" para analizar las fotos pre y post.</p>
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
