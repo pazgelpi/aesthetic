@@ -64,17 +64,37 @@ export default function DemoPortalPage() {
     <div className="p-6 max-w-md mx-auto space-y-5">
       {/* Portal header */}
       <div className="text-center pt-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">{DEMO_CLINIC.name}</p>
-        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>
-          Hola, {patient.first_name} 👋
+        <p
+          className="mb-2"
+          style={{
+            fontFamily: 'var(--font-jetbrains-mono)',
+            fontSize: 9.5,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            color: 'var(--ink-3)',
+          }}
+        >
+          {DEMO_CLINIC.name} · Tu espacio
+        </p>
+        <h1
+          className="leading-none tracking-tight"
+          style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 42 }}
+        >
+          {patient.first_name},<br />
+          <em>tu piel sigue trabajando.</em>
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">Tu espacio de seguimiento post-tratamiento</p>
+        <p className="text-sm mt-3 max-w-xs mx-auto leading-relaxed" style={{ color: 'var(--ink-3)' }}>
+          La doctora te dejó este resumen y te avisa cuando necesite algo.
+        </p>
       </div>
 
       {/* Mi próximo turno — DC-111 */}
-      <Card className="border-violet-200 bg-gradient-to-br from-violet-50 to-white">
+      <Card
+        className="border"
+        style={{ borderColor: 'rgba(181,112,79,0.25)', background: 'linear-gradient(135deg, var(--terracota-tint), var(--paper))' }}
+      >
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2 text-violet-700">
+          <CardTitle className="text-sm flex items-center gap-2" style={{ color: 'var(--terracota-deep)' }}>
             <Calendar className="h-4 w-4" />
             Mi próximo turno
           </CardTitle>
@@ -86,8 +106,8 @@ export default function DemoPortalPage() {
           </div>
           {daysUntil > 0 && (
             <div className="flex items-center gap-2">
-              <Clock className="h-3.5 w-3.5 text-violet-500" />
-              <span className="text-xs text-violet-700 font-medium">En {daysUntil} días</span>
+              <Clock className="h-3.5 w-3.5" style={{ color: 'var(--terracota)' }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--terracota-deep)' }}>En {daysUntil} días</span>
             </div>
           )}
           <div className="flex gap-2 pt-1">
@@ -192,21 +212,29 @@ export default function DemoPortalPage() {
       {/* Mi Informe de Evolución — DC-112 */}
       <div
         className="rounded-2xl p-5 space-y-4"
-        style={{ background: 'linear-gradient(160deg, #18142a 0%, #2d1b4e 100%)', border: '1px solid rgba(124,58,237,0.3)' }}
+        style={{ background: 'linear-gradient(160deg, var(--ink) 0%, var(--ink-2) 100%)', border: '1px solid rgba(181,112,79,0.3)' }}
       >
         <p className="text-[10px] font-medium tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)' }}>
           Mi Informe de Evolución
         </p>
-        <p className="text-lg font-bold text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+        <p
+          className="text-xl text-white leading-snug"
+          style={{ fontFamily: 'var(--font-instrument-serif)', fontStyle: 'italic' }}
+        >
           {story.title}
         </p>
         <div className="flex items-center gap-3">
-          <div className="bg-violet-600 rounded-xl px-4 py-2">
-            <span className="text-2xl font-extrabold text-white">{story.highlightValue}</span>
+          <div className="rounded-xl px-4 py-2" style={{ background: 'var(--terracota)' }}>
+            <span
+              className="text-3xl text-white leading-none"
+              style={{ fontFamily: 'var(--font-instrument-serif)' }}
+            >
+              {story.highlightValue}
+            </span>
           </div>
-          <span className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>{story.highlightLabel}</span>
+          <span className="text-sm italic" style={{ color: 'rgba(251,248,242,0.6)', fontFamily: 'var(--font-instrument-serif)' }}>{story.highlightLabel}</span>
         </div>
-        <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'rgba(251,248,242,0.75)' }}>
           {story.narrative}
         </p>
         <Separator style={{ background: 'rgba(255,255,255,0.1)' }} />
@@ -214,7 +242,12 @@ export default function DemoPortalPage() {
           &ldquo;{story.ctaText}&rdquo;
         </p>
         <div className="flex gap-2 pt-1">
-          <Button size="sm" className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs" disabled>
+          <Button
+            size="sm"
+            className="flex-1 rounded-xl text-white text-xs"
+            style={{ background: 'var(--terracota)' }}
+            disabled
+          >
             Coordinar próximo paso
           </Button>
           <Button variant="ghost" size="sm" className="text-xs px-3" style={{ color: 'rgba(255,255,255,0.45)' }} disabled>

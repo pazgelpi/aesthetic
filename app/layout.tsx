@@ -1,17 +1,25 @@
 import type { Metadata } from 'next'
-import { Geist, Playfair_Display } from 'next/font/google'
+import { Instrument_Serif, Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 
-const geist = Geist({
-  variable: '--font-geist-sans',
+const instrumentSans = Instrument_Sans({
+  variable: '--font-instrument-sans',
   subsets: ['latin'],
+  weight: ['400', '500', '600'],
 })
 
-const playfair = Playfair_Display({
-  variable: '--font-playfair',
+const instrumentSerif = Instrument_Serif({
+  variable: '--font-instrument-serif',
   subsets: ['latin'],
+  weight: ['400'],
   style: ['normal', 'italic'],
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
+  subsets: ['latin'],
+  weight: ['400', '500'],
 })
 
 export const metadata: Metadata = {
@@ -21,8 +29,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${geist.variable} ${playfair.variable} h-full antialiased`}>
-      <body className="min-h-full bg-background text-foreground font-sans">
+    <html
+      lang="es"
+      className={`${instrumentSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full bg-background text-foreground">
         {children}
         <Toaster richColors position="top-right" />
       </body>

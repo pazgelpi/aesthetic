@@ -825,7 +825,7 @@ function BlogPreview() {
             <div className="flex items-center gap-2.5 mb-4">
               <span
                 className="text-lg font-bold tracking-tight"
-                style={{ fontFamily: 'var(--font-playfair)', color: 'oklch(0.22 0.06 290)' }}
+                style={{ fontFamily: 'var(--font-playfair)', color: 'var(--ink)' }}
               >
                 Méd·ica
               </span>

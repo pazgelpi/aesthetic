@@ -40,7 +40,7 @@ export default function BlogPage() {
         {/* Header */}
         <div className="max-w-2xl mb-14">
           <div className="flex items-center gap-2.5 mb-4">
-            <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-playfair)', color: 'oklch(0.22 0.06 290)' }}>
+            <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-playfair)', color: 'var(--ink)' }}>
               Méd·ica
             </span>
             <span className="text-muted-foreground text-sm">—</span>

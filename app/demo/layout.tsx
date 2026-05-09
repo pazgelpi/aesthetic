@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, Users, Syringe, Sparkles, Globe } from 'lucide-react'
+import { LayoutDashboard, Users, Syringe, Globe, MessageCircle } from 'lucide-react'
 import { DemoBanner } from '@/components/demo/demo-banner'
 import { DEMO_CLINIC, DEMO_PROFESSIONAL } from '@/lib/demo/data'
 
@@ -19,14 +19,37 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
         <aside className="flex flex-col w-60 shrink-0 bg-[var(--sidebar)]">
           <div className="px-5 py-5 border-b border-[var(--sidebar-border)]">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--sidebar-accent)] shrink-0">
-                <Sparkles className="h-4 w-4 text-white" />
+              {/* Logo mark — terracota */}
+              <div
+                className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0"
+                style={{ background: 'var(--terracota)' }}
+              >
+                <span
+                  className="text-white font-normal leading-none"
+                  style={{ fontFamily: 'var(--font-instrument-serif)', fontStyle: 'italic', fontSize: 18 }}
+                >
+                  æ
+                </span>
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-[var(--sidebar-foreground)] truncate leading-tight">
+                <p
+                  className="text-sm text-[var(--sidebar-foreground)] truncate leading-tight"
+                  style={{ fontFamily: 'var(--font-instrument-serif)' }}
+                >
                   {DEMO_CLINIC.name}
                 </p>
-                <p className="text-[10px] text-[var(--sidebar-foreground)]/40 truncate">Demo interactiva</p>
+                <p
+                  className="truncate"
+                  style={{
+                    fontFamily: 'var(--font-jetbrains-mono)',
+                    fontSize: 9,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(251,248,242,0.35)',
+                  }}
+                >
+                  Demo interactiva
+                </p>
               </div>
             </div>
           </div>
@@ -36,7 +59,7 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
               <Link
                 key={href}
                 href={href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-[var(--sidebar-foreground)]/60 hover:text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-accent)]/20"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-[var(--sidebar-foreground)]/60 hover:text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-accent)]/20"
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 {label}
@@ -44,20 +67,40 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
             ))}
           </nav>
 
-          <div className="px-3 py-4 border-t border-[var(--sidebar-border)]">
+          <div className="px-3 py-4 border-t border-[var(--sidebar-border)] space-y-3">
+            {/* WhatsApp connection status */}
+            <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+              <MessageCircle className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-emerald-400 leading-tight">WhatsApp conectado</p>
+                <p className="text-[9px] leading-tight" style={{ color: 'rgba(34,197,94,0.5)' }}>+54 11 4455-6677</p>
+              </div>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
+            </div>
+
+            {/* Professional info */}
             <div className="flex items-center gap-3 px-3 py-2">
-              <div className="h-8 w-8 rounded-full bg-violet-600 flex items-center justify-center shrink-0">
-                <span className="text-xs font-bold text-white">VR</span>
+              <div
+                className="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: 'var(--champagne)' }}
+              >
+                <span
+                  className="text-sm leading-none"
+                  style={{ fontFamily: 'var(--font-instrument-serif)', fontStyle: 'italic', color: 'var(--ink)' }}
+                >
+                  v
+                </span>
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-medium text-[var(--sidebar-foreground)] truncate">{DEMO_PROFESSIONAL.full_name}</p>
                 <p className="text-[10px] text-[var(--sidebar-foreground)]/40">Cuenta demo</p>
               </div>
             </div>
-            <div className="mt-3 px-3">
+
+            <div className="px-3">
               <a
                 href="mailto:hola@aestheticiq.app?subject=Quiero%20una%20demo%20en%20vivo"
-                className="block w-full text-center text-[11px] font-semibold text-white bg-violet-600 hover:bg-violet-700 py-2 rounded-xl transition-colors"
+                className="block w-full text-center text-[11px] font-semibold text-white py-2 rounded-lg transition-colors bg-[#b5704f] hover:bg-[#8a4f33]"
               >
                 Pedir demo en vivo →
               </a>

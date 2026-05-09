@@ -1,5 +1,3 @@
-import { Users, AlertTriangle, Clock, Camera } from 'lucide-react'
-
 interface Kpis {
   totalActive: number
   pendingThisWeek: number
@@ -8,56 +6,75 @@ interface Kpis {
   pendingPhoto: number
 }
 
-const cards = [
+const items = [
   {
     key: 'totalActive' as const,
-    label: 'Pacientes activas',
-    icon: Users,
-    color: 'text-violet-600',
-    bg: 'bg-violet-50',
-    border: 'border-violet-100',
+    label: 'Activas',
+    sub: 'esta semana',
+    dot: null,
   },
   {
-    key: 'pendingThisWeek' as const,
-    label: 'Por retratarse esta semana',
-    icon: Clock,
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-    border: 'border-amber-100',
+    key: 'nearBaseline' as const,
+    label: 'Por retratarse',
+    sub: '≤ 21 días',
+    dot: 'amber',
   },
   {
     key: 'atRisk' as const,
-    label: 'En riesgo de churn',
-    icon: AlertTriangle,
-    color: 'text-rose-600',
-    bg: 'bg-rose-50',
-    border: 'border-rose-100',
+    label: 'Riesgo de churn',
+    sub: 'sin respuesta',
+    dot: 'rose',
   },
   {
     key: 'pendingPhoto' as const,
-    label: 'Foto post pendiente',
-    icon: Camera,
-    color: 'text-sky-600',
-    bg: 'bg-sky-50',
-    border: 'border-sky-100',
+    label: 'Foto pendiente',
+    sub: 'desde portal',
+    dot: 'green',
   },
 ]
 
+const DOT_COLOR: Record<string, string> = {
+  green: 'var(--status-green)',
+  amber: 'var(--status-amber)',
+  rose:  'var(--status-rose)',
+}
+
 export function DashboardKpis({ kpis }: { kpis: Kpis }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {cards.map(({ key, label, icon: Icon, color, bg, border }) => (
-        <div
-          key={key}
-          className={`bg-white rounded-2xl border ${border} p-5 shadow-[0_1px_4px_oklch(0_0_0/0.06)]`}
-        >
-          <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl ${bg} mb-3`}>
-            <Icon className={`h-4 w-4 ${color}`} />
+    <div
+      className="bg-card rounded-xl overflow-hidden"
+      style={{ border: '1px solid var(--hairline-strong)' }}
+    >
+      <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border">
+        {items.map(({ key, label, sub, dot }) => (
+          <div key={key} className="px-6 py-5 relative">
+            {dot && (
+              <div
+                className="absolute top-5 right-5 w-2 h-2 rounded-full"
+                style={{ background: DOT_COLOR[dot] }}
+              />
+            )}
+            <div
+              className="text-5xl leading-none tracking-tight mb-1.5"
+              style={{ fontFamily: 'var(--font-instrument-serif)' }}
+            >
+              {kpis[key]}
+            </div>
+            <div className="text-sm font-medium text-foreground">{label}</div>
+            <div
+              className="mt-0.5 uppercase tracking-widest"
+              style={{
+                fontFamily: 'var(--font-jetbrains-mono)',
+                fontSize: 10,
+                color: 'var(--ink-4)',
+                letterSpacing: '0.12em',
+              }}
+            >
+              {sub}
+            </div>
           </div>
-          <p className="text-2xl font-bold tracking-tight">{kpis[key]}</p>
-          <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{label}</p>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
