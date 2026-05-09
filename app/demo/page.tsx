@@ -4,6 +4,7 @@ import { DashboardKpis } from '@/components/dashboard/dashboard-kpis'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { MonthCalendar } from '@/components/demo/month-calendar'
 import { DEMO_KPIS, DEMO_PATIENTS, DEMO_PROFESSIONAL } from '@/lib/demo/data'
 import { formatRelativeDate } from '@/lib/utils'
 import { Star, ChevronRight, AlertTriangle, Clock } from 'lucide-react'
@@ -83,6 +84,9 @@ export default function DemoDashboard() {
           )}
         </div>
       )}
+
+      {/* Month planner */}
+      <MonthCalendar />
 
       {/* Patients table */}
       <Card>
