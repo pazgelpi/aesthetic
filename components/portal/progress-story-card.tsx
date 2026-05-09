@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { StoryOutput } from '@/lib/ai/generate-progress-story'
-import { Share2, Download, Mail, Loader2, CheckCircle2 } from 'lucide-react'
+import { Download, Mail, Loader2, CheckCircle2 } from 'lucide-react'
 
 interface Props {
   story: StoryOutput
@@ -50,11 +50,11 @@ export function ProgressStoryCard({ story, treatmentId, token, patientEmail }: P
     >
       <div className="p-5 space-y-4">
         <p className="text-xs font-medium tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}>
-          Tu historia de progreso
+          Mi Informe de Evolución
         </p>
 
         <h3 className="text-xl font-bold leading-snug" style={{ color: '#ffffff' }}>
-          ✨ {story.title}
+          {story.title}
         </h3>
 
         <div className="flex items-center gap-3">
@@ -78,34 +78,42 @@ export function ProgressStoryCard({ story, treatmentId, token, patientEmail }: P
           &ldquo;{story.ctaText}&rdquo;
         </p>
 
-        {/* Share button */}
+        {/* Primary CTA */}
         <button
-          onClick={handleShare}
-          className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-opacity hover:opacity-80 active:opacity-60"
-          style={{ background: 'rgba(124,58,237,0.35)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(124,58,237,0.5)' }}
+          className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-opacity hover:opacity-90 active:opacity-70"
+          style={{ background: '#7c3aed', color: '#ffffff' }}
+          onClick={() => {/* open contact / schedule flow */}}
         >
-          {typeof navigator !== 'undefined' && 'share' in navigator
-            ? <Share2 className="h-4 w-4" />
-            : <Download className="h-4 w-4" />}
-          Compartir mi historia
+          Coordinar próximo paso
         </button>
 
-        {/* Email button — only shown if patient has email */}
-        {patientEmail && (
+        {/* Secondary actions row */}
+        <div className="flex gap-2">
           <button
-            onClick={handleEmailSend}
-            disabled={emailLoading || emailSent}
-            className="w-full flex items-center justify-center gap-2 rounded-xl py-2 text-xs font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
-            style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
+            onClick={handleShare}
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-opacity hover:opacity-80"
+            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
           >
-            {emailLoading
-              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              : emailSent
-              ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              : <Mail className="h-3.5 w-3.5" />}
-            {emailSent ? 'Historia enviada por email' : 'Enviar por email'}
+            <Download className="h-3.5 w-3.5" />
+            Guardar informe
           </button>
-        )}
+
+          {patientEmail && (
+            <button
+              onClick={handleEmailSend}
+              disabled={emailLoading || emailSent}
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
+              style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
+            >
+              {emailLoading
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : emailSent
+                ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                : <Mail className="h-3.5 w-3.5" />}
+              {emailSent ? 'Enviado' : 'Enviar por email'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

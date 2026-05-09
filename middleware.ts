@@ -27,10 +27,11 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Public routes: auth, portal (token-based), webhooks
+  // Public routes: auth, portal (token-based), webhooks, demo
   const isPublic =
     pathname.startsWith('/auth') ||
     pathname.startsWith('/portal') ||
+    pathname.startsWith('/demo') ||
     pathname.startsWith('/api/webhooks') ||
     pathname.startsWith('/api/portal') ||
     pathname.startsWith('/api/cron') ||

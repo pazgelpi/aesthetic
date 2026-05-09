@@ -120,16 +120,16 @@ function Hero() {
               className="text-4xl sm:text-5xl lg:text-6xl text-white leading-[1.1] tracking-tight"
               style={{ fontFamily: 'var(--font-playfair)' }}
             >
-              La medicina estética
+              El seguimiento de tus pacientes,
               <em className="block not-italic" style={{ color: 'oklch(0.75 0.12 290)' }}>
-                merece tecnología
+                finalmente sin
               </em>
-              que la entienda.
+              WhatsApp manual.
             </h1>
 
             <p className="text-base sm:text-lg leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              Para vos que dedicás años a perfeccionar cada tratamiento.
-              Para tus pacientes que merecen ver su evolución.
+              Mensajes en tu voz, comparación con IA, agenda sincronizada con Google Calendar.
+              Más de 80% de las pacientes abandona el plan por falta de seguimiento. Aesthetic IQ resuelve eso sin que tengas que escribir un mensaje más.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -137,16 +137,15 @@ function Hero() {
                 href="/auth/login"
                 className="inline-flex items-center justify-center gap-2 bg-white text-[var(--sidebar)] font-semibold px-7 py-3.5 rounded-xl hover:bg-white/90 transition-colors text-sm"
               >
-                Soy profesional
+                Pedir demo de 20 min
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <a
-                href="#pacientes"
+              <Link
+                href="/demo"
                 className="inline-flex items-center justify-center gap-2 border border-white/20 text-white/70 hover:bg-white/5 font-medium px-7 py-3.5 rounded-xl transition-colors text-sm"
               >
-                Seguí mi tratamiento
-                <ChevronDown className="h-4 w-4" />
-              </a>
+                Ver demo interactiva →
+              </Link>
             </div>
           </div>
 
@@ -499,6 +498,138 @@ function Testimonials() {
   )
 }
 
+// ─── ROI calculator (DC-206) ─────────────────────────────────────────────────
+
+function ROICalculator() {
+  const [patients, setPatients] = useState(30)
+  const minutesPerPatient = 8 // manual WhatsApp average
+  const totalMinutes = patients * minutesPerPatient
+  const hoursPerWeek = +(totalMinutes / 60).toFixed(1)
+  const lostPerMonth = Math.round(patients * 0.18) // 18% churn without follow-up
+
+  return (
+    <section className="py-20 px-5 bg-background border-t border-border">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-10">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--primary)] mb-2">Calculadora de tiempo</p>
+          <h2
+            className="text-2xl sm:text-3xl font-bold tracking-tight"
+            style={{ fontFamily: 'var(--font-playfair)' }}
+          >
+            ¿Cuántas pacientes seguís a mano?
+          </h2>
+          <p className="text-sm text-muted-foreground mt-2">Mové el slider y mirá el tiempo que recuperás.</p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-8 space-y-8">
+          {/* Slider */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-medium">Pacientes activas</label>
+              <span className="text-2xl font-bold text-[var(--primary)]">{patients}</span>
+            </div>
+            <input
+              type="range"
+              min={5}
+              max={120}
+              step={5}
+              value={patients}
+              onChange={e => setPatients(Number(e.target.value))}
+              className="w-full accent-[var(--primary)] h-2 rounded-full cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>5</span><span>60</span><span>120</span>
+            </div>
+          </div>
+
+          {/* Results grid */}
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="rounded-xl bg-rose-50 border border-rose-100 p-4 text-center space-y-1">
+              <p className="text-2xl font-extrabold text-rose-600">{hoursPerWeek}h</p>
+              <p className="text-xs font-medium text-rose-700">por semana en WhatsApp manual</p>
+            </div>
+            <div className="rounded-xl bg-amber-50 border border-amber-100 p-4 text-center space-y-1">
+              <p className="text-2xl font-extrabold text-amber-600">{lostPerMonth}</p>
+              <p className="text-xs font-medium text-amber-700">pacientes perdidas por mes sin seguimiento</p>
+            </div>
+            <div className="rounded-xl bg-violet-50 border border-violet-100 p-4 text-center space-y-1">
+              <p className="text-2xl font-extrabold text-violet-600">0h</p>
+              <p className="text-xs font-medium text-violet-700">con Aesthetic IQ — automático</p>
+            </div>
+          </div>
+
+          <div className="text-center pt-2">
+            <p className="text-sm text-muted-foreground mb-4">
+              <strong className="text-foreground">{hoursPerWeek} horas semanales</strong> que podés dedicar a consultas en lugar de mensajes.
+            </p>
+            <Link
+              href="/auth/login"
+              className="inline-flex items-center gap-2 bg-[var(--primary)] text-white font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity text-sm"
+            >
+              Pedir demo de 20 min <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Google integration strip ────────────────────────────────────────────────
+
+function GoogleIntegrationStrip() {
+  const integrations = [
+    {
+      name: 'Google Calendar',
+      desc: 'Tratamientos y retratamientos en tu agenda automáticamente.',
+      color: '#4285F4',
+    },
+    {
+      name: 'Gmail',
+      desc: 'Importá historia clínica de emails y enviá seguimientos por email.',
+      color: '#EA4335',
+    },
+    {
+      name: 'Google Drive',
+      desc: 'Fotos e informes organizados en carpetas por paciente.',
+      color: '#34A853',
+    },
+  ]
+  return (
+    <section className="py-16 px-5 bg-card border-t border-border">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Integrada con las herramientas que ya usás</p>
+          <h3
+            className="text-2xl font-bold tracking-tight"
+            style={{ fontFamily: 'var(--font-playfair)' }}
+          >
+            Conectada con tu agenda
+          </h3>
+          <p className="text-sm text-muted-foreground mt-2">Aesthetic IQ sincroniza con el ecosistema Google que ya tenés.</p>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-5">
+          {integrations.map(({ name, desc, color }) => (
+            <div key={name} className="rounded-2xl border border-border bg-background p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-2.5">
+                {/* Colored Google-style dot badge */}
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: color + '15', border: `1px solid ${color}30` }}>
+                  <span className="text-sm font-bold" style={{ color }}>G</span>
+                </div>
+                <p className="text-sm font-semibold">{name}</p>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          Turnos sincronizados · Historia clínica importable · Sin cambiar tu flujo de trabajo
+        </p>
+      </div>
+    </section>
+  )
+}
+
 // ─── Para pacientes ───────────────────────────────────────────────────────────
 
 function ParaPacientes() {
@@ -513,37 +644,49 @@ function ParaPacientes() {
           >
             {/* Phone header */}
             <div className="bg-background/95 px-4 py-3 border-b border-border">
-              <p className="text-[10px] text-muted-foreground">Tu portal de seguimiento</p>
+              <p className="text-[10px] text-muted-foreground">Centro Lumina · Tu seguimiento</p>
               <p className="text-xs font-semibold">Hola, Valentina 👋</p>
             </div>
-            {/* Progress story card inside phone */}
+            {/* Next appointment card */}
+            <div className="p-4 bg-background/97 border-b border-border">
+              <div className="rounded-2xl p-3.5" style={{ background: 'linear-gradient(135deg, oklch(0.96 0.02 290), white)', border: '1px solid oklch(0.85 0.06 290)' }}>
+                <p className="text-[9px] font-semibold uppercase tracking-widest mb-1" style={{ color: 'oklch(0.55 0.18 290)' }}>
+                  Mi próximo turno
+                </p>
+                <p className="text-sm font-bold leading-tight">Jue 22 de mayo</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Retratamiento · Toxina Botulínica</p>
+                <div className="flex gap-1.5 mt-2.5">
+                  <div className="flex-1 text-center text-[9px] font-semibold py-1.5 rounded-lg" style={{ background: 'oklch(0.55 0.18 290)', color: 'white' }}>
+                    Confirmar
+                  </div>
+                  <div className="flex-1 text-center text-[9px] font-medium py-1.5 rounded-lg border border-border text-muted-foreground">
+                    Reagendar
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Progress card */}
             <div
               className="p-4"
               style={{ background: 'linear-gradient(160deg, #18142a 0%, #2d1b4e 70%, #1a0e2e 100%)' }}
             >
               <p className="text-[9px] font-medium tracking-widest uppercase mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                Tu historia de progreso
+                Mi Informe de Evolución
               </p>
-              <p className="text-sm font-bold text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>
-                ✨ Tu piel lo dice todo
-              </p>
-              <div className="flex items-center gap-2.5 mb-3">
+              <div className="flex items-center gap-2.5 mb-2">
                 <div className="bg-violet-600 rounded-lg px-2.5 py-1.5">
-                  <span className="text-xl font-extrabold text-white">67%</span>
+                  <span className="text-lg font-extrabold text-white">67%</span>
                 </div>
-                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>de mejora general</span>
+                <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.55)' }}>de mejora documentada</span>
               </div>
-              <p className="text-[10px] leading-relaxed mb-3" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                A 30 días de tu tratamiento, la zona del entrecejo muestra una suavización notable. ¡Estás en tu mejor momento!
+              <p className="text-[10px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                A 30 días, la zona del entrecejo muestra suavización notable.
               </p>
-              <button className="w-full text-[10px] font-medium py-2 rounded-xl" style={{ background: 'rgba(124,58,237,0.35)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(124,58,237,0.4)' }}>
-                Compartir mi historia
-              </button>
             </div>
             {/* Tabs */}
             <div className="bg-background px-4 py-3 border-t border-border">
               <div className="flex gap-0 rounded-lg bg-muted p-0.5 text-[10px]">
-                {['Mi plan', 'Mi rutina', 'Mis fotos'].map((t, i) => (
+                {['Mi plan', 'Mi evolución', 'Mis fotos'].map((t, i) => (
                   <div key={t} className={`flex-1 text-center py-1.5 rounded-md font-medium transition-colors ${i === 0 ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}>
                     {t}
                   </div>
@@ -562,29 +705,30 @@ function ParaPacientes() {
             className="text-3xl sm:text-4xl font-bold text-white leading-tight"
             style={{ fontFamily: 'var(--font-playfair)' }}
           >
-            Tu historia estética,
-            <em className="block not-italic" style={{ color: 'oklch(0.75 0.12 290)' }}>finalmente en tus manos.</em>
+            Tu próximo turno, tu evolución, tu plan —
+            <em className="block not-italic" style={{ color: 'oklch(0.75 0.12 290)' }}>sin tener que llamar.</em>
           </h2>
           <p className="leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            Tu médica te envía un link. Sin app que instalar, sin cuenta que crear. Abrís, subís tus fotos y recibís una historia de progreso personalizada — tuya para guardar y compartir cuando quieras.
+            Tu médica te envía un link. Sin app que instalar, sin cuenta que crear. Todo lo que necesitás saber sobre tu tratamiento, en un solo lugar.
           </p>
-          <p className="text-sm font-medium" style={{ color: 'oklch(0.75 0.12 290)' }}>
-            Sin cuenta. Sin app. Solo tu historia.
-          </p>
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {[
-              'Portal personal con tu historial de tratamientos',
-              'Historia de progreso generada por IA, lista para compartir',
-              'Fotos antes y después analizadas objetivamente',
-              'Instrucciones de cuidado post-tratamiento',
-              'Recordatorio de tu próxima cita',
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                <CheckCircle2 className="h-4 w-4 text-violet-400 shrink-0 mt-0.5" />
-                {item}
+              { title: 'Recordatorios y reagendamiento en un toque', desc: 'Sabés cuándo es tu próximo turno y podés confirmar o cambiar sin llamar.' },
+              { title: 'Conectá con tu doctora cuando lo necesites', desc: 'Canal directo para consultas post-tratamiento, sin esperar al turno.' },
+              { title: 'Ve tu evolución y conocé tus próximos pasos', desc: 'Tu informe de evolución generado por IA, privado y siempre disponible.' },
+            ].map(({ title, desc }) => (
+              <li key={title} className="flex items-start gap-3">
+                <CheckCircle2 className="h-4 w-4 text-violet-400 shrink-0 mt-1" />
+                <div>
+                  <p className="text-sm font-semibold text-white">{title}</p>
+                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>{desc}</p>
+                </div>
               </li>
             ))}
           </ul>
+          <p className="text-xs font-medium" style={{ color: 'oklch(0.75 0.12 290)' }}>
+            Sin cuenta. Sin app. Solo tu link.
+          </p>
         </div>
       </div>
     </section>
@@ -976,18 +1120,63 @@ function Footer() {
   )
 }
 
+// ─── Sticky CTA (DC-205) ──────────────────────────────────────────────────────
+
+function StickyCTA() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const fn = () => {
+      const scrollPct = window.scrollY / (document.body.scrollHeight - window.innerHeight)
+      setVisible(scrollPct > 0.45)
+    }
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  if (!visible) return null
+
+  return (
+    <>
+      {/* Mobile: floating pill bottom-right */}
+      <div className="fixed bottom-6 right-5 z-50 md:hidden">
+        <Link
+          href="/auth/login"
+          className="flex items-center gap-2 bg-[var(--primary)] text-white text-sm font-semibold px-5 py-3 rounded-full shadow-[0_4px_24px_oklch(0.52_0.22_290/0.45)] hover:opacity-90 transition-opacity"
+        >
+          Pedir demo
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+      {/* Desktop: slim top bar (below fixed navbar) */}
+      <div className="fixed top-16 inset-x-0 z-40 hidden md:flex items-center justify-center gap-4 py-2 px-5 bg-[var(--primary)]/95 backdrop-blur-md">
+        <p className="text-white text-xs font-medium">Aesthetic IQ · Demo de 20 minutos para tu clínica</p>
+        <Link
+          href="/auth/login"
+          className="flex items-center gap-1.5 bg-white text-[var(--primary)] text-xs font-bold px-4 py-1.5 rounded-full hover:bg-white/90 transition-colors"
+        >
+          Reservar demo <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+    </>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
   return (
     <>
       <Navbar />
+      <StickyCTA />
       <main>
         <Hero />
         <SocialProof />
         <PressRow />
         <ParaProfesionales />
+        <GoogleIntegrationStrip />
         <Testimonials />
+        <ROICalculator />
         <ParaPacientes />
         <ProgressStoryFeature />
         <BlogPreview />
