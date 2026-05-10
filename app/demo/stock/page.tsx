@@ -397,6 +397,55 @@ Buenos Aires, Argentina
 hola@aestheticiq.app`
 }
 
+// ─── Quote Response Card (component so useState is valid) ────────────────────
+
+function QuoteResponseCard({ qr }: { qr: typeof DEMO_QUOTE_RESPONSES[0] }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <button className="w-full flex items-center justify-between gap-3 p-4 text-left" onClick={() => setOpen(o => !o)}>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--status-green)' }} />
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate" style={{ color: 'var(--paper)' }}>{qr.empresa}</p>
+            <p style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em' }}>{qr.asunto}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9.5, color: 'rgba(255,255,255,0.35)' }}>{formatRelativeTime(qr.fechaRespuesta)}</span>
+          <span style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 18, color: 'var(--paper)' }}>${qr.precio} {qr.moneda}</span>
+          <ChevronDown className="h-4 w-4 transition-transform" style={{ color: 'rgba(255,255,255,0.3)', transform: open ? 'rotate(180deg)' : 'none' }} />
+        </div>
+      </button>
+      {open && (
+        <div className="px-4 pb-4">
+          <EmailThread
+            sent={qr.emailEnviado}
+            response={qr.respuesta}
+            empresa={qr.empresa}
+            emailDe={qr.emailDe}
+            emailPara={qr.emailPara}
+            fechaEnviado={qr.fechaEnviado}
+            fechaRespuesta={qr.fechaRespuesta}
+          />
+          <div className="flex items-baseline justify-between mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div>
+              <p style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: 'var(--paper)' }}>
+                ${qr.precio} {qr.moneda}
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: 'inherit' }}> / {qr.unidad}</span>
+              </p>
+              <p style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9.5, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{qr.disponibilidad}</p>
+            </div>
+            <ChevronRight className="h-5 w-5" style={{ color: 'rgba(255,255,255,0.2)' }} />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function DemoStockPage() {
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null)
 
@@ -637,50 +686,9 @@ export default function DemoStockPage() {
                 Sincronizado
               </span>
             </div>
-            {existingResponses.map(qr => {
-              const [open, setOpen] = useState(false)
-              return (
-                <div key={qr.id} className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <button className="w-full flex items-center justify-between gap-3 p-4 text-left" onClick={() => setOpen(o => !o)}>
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--status-green)' }} />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate" style={{ color: 'var(--paper)' }}>{qr.empresa}</p>
-                        <p style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em' }}>{qr.asunto}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9.5, color: 'rgba(255,255,255,0.35)' }}>{formatRelativeTime(qr.fechaRespuesta)}</span>
-                      <span style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 18, color: 'var(--paper)' }}>${qr.precio} {qr.moneda}</span>
-                      <ChevronDown className="h-4 w-4 transition-transform" style={{ color: 'rgba(255,255,255,0.3)', transform: open ? 'rotate(180deg)' : 'none' }} />
-                    </div>
-                  </button>
-                  {open && (
-                    <div className="px-4 pb-4">
-                      <EmailThread
-                        sent={qr.emailEnviado}
-                        response={qr.respuesta}
-                        empresa={qr.empresa}
-                        emailDe={qr.emailDe}
-                        emailPara={qr.emailPara}
-                        fechaEnviado={qr.fechaEnviado}
-                        fechaRespuesta={qr.fechaRespuesta}
-                      />
-                      <div className="flex items-baseline justify-between mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                        <div>
-                          <p style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: 'var(--paper)' }}>
-                            ${qr.precio} {qr.moneda}
-                            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: 'inherit' }}> / {qr.unidad}</span>
-                          </p>
-                          <p style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9.5, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{qr.disponibilidad}</p>
-                        </div>
-                        <ChevronRight className="h-5 w-5" style={{ color: 'rgba(255,255,255,0.2)' }} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+            {existingResponses.map(qr => (
+              <QuoteResponseCard key={qr.id} qr={qr} />
+            ))}
           </div>
         )}
       </div>

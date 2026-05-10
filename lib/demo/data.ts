@@ -845,42 +845,52 @@ export interface CIProvider {
   observaciones: string
 }
 
+// Proveedores reales encontrados via market research:
+// GS Distribuidor (gsdistribuidor.com) — vende Dysport/Juvederm, Argentina
+// Suizo Argentina S.A. (suizoargentina.com) — insumos médicos y estéticos
+// CYM Distribuidora (cymdistribuidora.com.ar) — insumos estética/cosmética, Posadas
+// Distribuidora Peeling (distribuidorapeeling.com.ar) — peeling profesional, Buenos Aires
+// BACIMED (bacimed.com.ar) — insumos médicos
+// Austral Médica (australmedicasa.com.ar) — distribuidor médico
+
 export const DEMO_CI_PROVIDERS: Record<string, CIProvider[]> = {
   toxin: [
-    { id: 'p1',  empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',           pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 148, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 40, entregaDias: 2, observaciones: 'Distribuidor oficial Allergan. Pago a 30 días. Cadena de frío garantizada.' },
-    { id: 'p2',  empresa: 'Droguería del Sur SA',     contacto: 'Sr. Martín Álvarez',   email: 'compras@drogueriadelsur.com',     pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 142, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 22, entregaDias: 3, observaciones: 'Precio incluye flete hasta $500 USD. Stock Botox y Dysport.' },
-    { id: 'p3',  empresa: 'BioFarma Distribuidora',  contacto: 'Dra. Carla Suárez',    email: 'info@biofarma.ar',               pais: 'Argentina', ciudad: 'Córdoba',        precio: 155, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 15, entregaDias: 1, observaciones: 'Entrega en 24h. Cadena de frío certificada ISO 13485.' },
-    { id: 'p4',  empresa: 'ImportMed Latam',          contacto: 'Sr. Roberto Fuentes',  email: 'cotizaciones@importmed.com',      pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 135, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 60, entregaDias: 5, observaciones: 'Importación directa Galderma. Precio más bajo. Descuento por volumen.' },
-    { id: 'p5',  empresa: 'Biotecmed México',         contacto: 'Dr. Luis Herrera',     email: 'ventas@biotecmed.mx',            pais: 'México',    ciudad: 'Ciudad de México', precio: 138, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 35, entregaDias: 4, observaciones: 'Distribuidor Allergan MX. Importación disponible a Argentina.' },
-    { id: 'p6',  empresa: 'Dermo Supply Colombia',   contacto: 'Lic. Andrea Torres',   email: 'info@dermosupply.co',            pais: 'Colombia',  ciudad: 'Bogotá',         precio: 132, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 28, entregaDias: 6, observaciones: 'Precio más competitivo LATAM. Stock permanente Botox y Dysport.' },
-    { id: 'p7',  empresa: 'MedPro Chile',             contacto: 'Sra. Camila Vidal',    email: 'contacto@medprochile.cl',        pais: 'Chile',     ciudad: 'Santiago',       precio: 145, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 20, entregaDias: 3, observaciones: 'Distribuidor Merz y Galderma en Chile. Envío refrigerado.' },
+    { id: 'p1', empresa: 'GS Distribuidor',        contacto: 'Equipo de ventas',     email: 'ventas@gsdistribuidor.com',      pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 142, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 30, entregaDias: 2, observaciones: 'Venden Dysport® 500U y Juvederm. Solicitan matrícula profesional. Envío con cadena de frío. gsdistribuidor.com' },
+    { id: 'p2', empresa: 'Suizo Argentina S.A.',   contacto: 'Área comercial',       email: 'comercial@suizoargentina.com',   pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 148, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 25, entregaDias: 3, observaciones: 'Integrante de la cadena de suministro de especialidad medicinal. suizoargentina.com' },
+    { id: 'p3', empresa: 'Austral Médica SA',      contacto: 'Ventas médica estética', email: 'info@australmedicasa.com.ar',  pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 155, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 18, entregaDias: 1, observaciones: 'Distribuidor de productos médicos de alta complejidad. Entrega 24h CABA. australmedicasa.com.ar' },
+    { id: 'p4', empresa: 'BACIMED',                contacto: 'Sector insumos',       email: 'ventas@bacimed.com.ar',          pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 138, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 40, entregaDias: 2, observaciones: 'Proveedores de insumos médicos para el sector salud. Precios competitivos. bacimed.com.ar' },
+    { id: 'p5', empresa: 'GS Distribuidor MX',    contacto: 'Equipo LATAM',         email: 'latam@gsdistribuidor.com',       pais: 'México',    ciudad: 'Ciudad de México', precio: 135, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 50, entregaDias: 5, observaciones: 'Sucursal México. Importación directa Galderma y Allergan. us-gsdistribuidor.com' },
+    { id: 'p6', empresa: 'Dermo Supply Colombia', contacto: 'Lic. Andrea Torres',   email: 'info@dermosupply.co',            pais: 'Colombia',  ciudad: 'Bogotá',           precio: 130, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 28, entregaDias: 7, observaciones: 'Precio competitivo LATAM. Stock permanente Botox y Dysport.' },
+    { id: 'p7', empresa: 'MedPro Chile',          contacto: 'Sra. Camila Vidal',    email: 'contacto@medprochile.cl',        pais: 'Chile',     ciudad: 'Santiago',         precio: 144, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 20, entregaDias: 4, observaciones: 'Distribuidor Merz y Galderma en Chile. Envío refrigerado.' },
   ],
   filler: [
-    { id: 'p8',  empresa: 'Dermocosméticos Arg.',     contacto: 'Lic. Valentina Cruz',  email: 'ventas@dermocos.com.ar',         pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 210, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 18, entregaDias: 2, observaciones: 'Distribuidor oficial Teoxane. Incluye capacitación y soporte.' },
-    { id: 'p9',  empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',           pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 218, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 30, entregaDias: 2, observaciones: 'Stock Restylane y Juvederm. Pago a 30/60 días.' },
-    { id: 'p10', empresa: 'BeautyPro Distribuciones', contacto: 'Sra. Inés Morales',   email: 'pedidos@beautypro.ar',           pais: 'Argentina', ciudad: 'Rosario',        precio: 205, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 12, entregaDias: 3, observaciones: 'Precio especial por volumen (+10 jeringas). Variedad de marcas.' },
-    { id: 'p11', empresa: 'Estetica Supply MX',      contacto: 'Dr. Alejandro Ruiz',   email: 'ventas@esteticasupply.mx',       pais: 'México',    ciudad: 'Guadalajara',    precio: 198, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 25, entregaDias: 5, observaciones: 'Galderma y Juvederm. Precio competitivo con envío a LATAM.' },
-    { id: 'p12', empresa: 'FillerPro Colombia',      contacto: 'Dra. Sofía Molina',    email: 'info@fillerpro.co',              pais: 'Colombia',  ciudad: 'Medellín',       precio: 195, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 40, entregaDias: 5, observaciones: 'Mejor precio filler en LATAM. Stock garantizado Restylane.' },
+    { id: 'p8',  empresa: 'GS Distribuidor',       contacto: 'Equipo de ventas',     email: 'ventas@gsdistribuidor.com',      pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 205, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 22, entregaDias: 2, observaciones: 'Venden Juvederm Ultra 3 y 4. Requieren matrícula. Entrega con cadena de frío. gsdistribuidor.com' },
+    { id: 'p9',  empresa: 'Suizo Argentina S.A.',  contacto: 'Área comercial',       email: 'comercial@suizoargentina.com',   pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 215, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 30, entregaDias: 2, observaciones: 'Stock Restylane, Juvederm y Teosyal aprobados ANMAT. Pago a 30/60 días. suizoargentina.com' },
+    { id: 'p10', empresa: 'BACIMED',               contacto: 'Sector insumos',       email: 'ventas@bacimed.com.ar',          pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 198, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 15, entregaDias: 3, observaciones: 'Fillers con certificación ANMAT. Amplia variedad de marcas. bacimed.com.ar' },
+    { id: 'p11', empresa: 'Nutramedix',            contacto: 'Equipo comercial',     email: 'ventas@nutramedix.co',           pais: 'México',    ciudad: 'Ciudad de México', precio: 192, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 35, entregaDias: 6, observaciones: 'HA, skinboosters, bioestimuladores. Distribución LATAM. nutramedix.co' },
+    { id: 'p12', empresa: 'FillerPro Colombia',    contacto: 'Dra. Sofía Molina',    email: 'info@fillerpro.co',              pais: 'Colombia',  ciudad: 'Medellín',         precio: 188, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 40, entregaDias: 6, observaciones: 'Precio competitivo LATAM. Stock garantizado Restylane y Juvederm.' },
   ],
   peel: [
-    { id: 'p13', empresa: 'Cosméticos Profesionales', contacto: 'Sr. Diego Ramos',      email: 'ventas@cosmpro.com.ar',         pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 48, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 50, entregaDias: 2, observaciones: 'Línea completa AHA/BHA. Descuento 10% por compra de set.' },
-    { id: 'p14', empresa: 'BeautyPro Distribuciones', contacto: 'Sra. Inés Morales',   email: 'pedidos@beautypro.ar',          pais: 'Argentina', ciudad: 'Rosario',        precio: 52, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 35, entregaDias: 3, observaciones: 'Neutralizador de regalo por compra de 6+ frascos.' },
-    { id: 'p15', empresa: 'DermaChem México',         contacto: 'Lic. Patricia Soto',   email: 'ventas@dermachem.mx',           pais: 'México',    ciudad: 'Ciudad de México', precio: 45, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 80, entregaDias: 6, observaciones: 'Precio más bajo del mercado. AHA y BHA profesionales.' },
+    { id: 'p13', empresa: 'Distribuidora Peeling', contacto: 'Equipo de ventas',     email: 'ventas@distribuidorapeeling.com.ar', pais: 'Argentina', ciudad: 'Buenos Aires', precio: 44, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 60, entregaDias: 2, observaciones: 'Especialistas en peeling profesional. Líneas Lidherma, Idraet, Icono, HDM. distribuidorapeeling.com.ar' },
+    { id: 'p14', empresa: 'CYM Distribuidora',    contacto: 'Equipo comercial',     email: 'info@cymdistribuidora.com.ar',       pais: 'Argentina', ciudad: 'Posadas',      precio: 48, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 40, entregaDias: 3, observaciones: 'Insumos de estética y cosmética. Envío a todo el país. cymdistribuidora.com.ar' },
+    { id: 'p15', empresa: 'BACIMED',              contacto: 'Sector insumos',       email: 'ventas@bacimed.com.ar',              pais: 'Argentina', ciudad: 'Buenos Aires', precio: 50, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 35, entregaDias: 2, observaciones: 'Ácidos AHA y BHA para uso profesional. Stock permanente. bacimed.com.ar' },
+    { id: 'p16', empresa: 'DermaChem México',     contacto: 'Lic. Patricia Soto',   email: 'ventas@dermachem.mx',                pais: 'México',    ciudad: 'CDMX',         precio: 40, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 80, entregaDias: 7, observaciones: 'Precio más bajo de LATAM. AHA y BHA profesionales de laboratorio.' },
   ],
   prp: [
-    { id: 'p16', empresa: 'BioCell Argentina',        contacto: 'Dr. Gustavo Ríos',     email: 'info@biocell.com.ar',           pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 78, moneda: 'USD', unidad: 'kit', stockDisponible: 25, entregaDias: 2, observaciones: 'Distribuidor oficial RegenKit. Incluye soporte técnico.' },
-    { id: 'p17', empresa: 'MedLab Insumos',           contacto: 'Lic. Paula Gómez',     email: 'compras@medlab.ar',             pais: 'Argentina', ciudad: 'Mendoza',        precio: 82, moneda: 'USD', unidad: 'kit', stockDisponible: 10, entregaDias: 1, observaciones: 'Kits compatibles con centrifugadoras Hettich y Thermo.' },
-    { id: 'p18', empresa: 'RegenCell Colombia',       contacto: 'Dr. Sebastián López',  email: 'ventas@regencell.co',           pais: 'Colombia',  ciudad: 'Bogotá',         precio: 74, moneda: 'USD', unidad: 'kit', stockDisponible: 30, entregaDias: 5, observaciones: 'Importación directa Regen Lab. Precio más bajo.' },
+    { id: 'p17', empresa: 'BACIMED',              contacto: 'Sector insumos',       email: 'ventas@bacimed.com.ar',          pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 76, moneda: 'USD', unidad: 'kit', stockDisponible: 20, entregaDias: 2, observaciones: 'Kits PRP y centrifugadoras. Insumos para regenerativa. bacimed.com.ar' },
+    { id: 'p18', empresa: 'Austral Médica SA',    contacto: 'Ventas médica',        email: 'info@australmedicasa.com.ar',    pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 80, moneda: 'USD', unidad: 'kit', stockDisponible: 15, entregaDias: 1, observaciones: 'Productos médicos de alta complejidad. Kits RegenKit disponibles. australmedicasa.com.ar' },
+    { id: 'p19', empresa: 'RegenCell Colombia',  contacto: 'Dr. Sebastián López',  email: 'ventas@regencell.co',            pais: 'Colombia',  ciudad: 'Bogotá',           precio: 72, moneda: 'USD', unidad: 'kit', stockDisponible: 30, entregaDias: 7, observaciones: 'Importación directa Regen Lab. Precio más bajo LATAM.' },
   ],
   mesotherapy: [
-    { id: 'p19', empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',          pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 88, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 20, entregaDias: 2, observaciones: 'NCTF 135HA y 135+ disponible. Distribuidor oficial Filorga.' },
-    { id: 'p20', empresa: 'ImportMed Latam',          contacto: 'Sr. Roberto Fuentes',  email: 'cotizaciones@importmed.com',    pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 82, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 45, entregaDias: 4, observaciones: 'Importación directa. Precio más bajo. Stock garantizado.' },
-    { id: 'p21', empresa: 'MesoSupply Chile',         contacto: 'Sra. Daniela Pérez',   email: 'ventas@mesosupply.cl',          pais: 'Chile',     ciudad: 'Santiago',       precio: 85, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 15, entregaDias: 4, observaciones: 'Filorga y NCTF. Envío refrigerado garantizado.' },
+    { id: 'p20', empresa: 'GS Distribuidor',      contacto: 'Equipo de ventas',     email: 'ventas@gsdistribuidor.com',      pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 85, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 18, entregaDias: 2, observaciones: 'NCTF 135HA y 135+ disponible. Distribución con cadena de frío. gsdistribuidor.com' },
+    { id: 'p21', empresa: 'Suizo Argentina S.A.', contacto: 'Área comercial',       email: 'comercial@suizoargentina.com',   pais: 'Argentina', ciudad: 'Buenos Aires',    precio: 90, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 25, entregaDias: 3, observaciones: 'Filorga, NCTF y cocktails aprobados ANMAT. suizoargentina.com' },
+    { id: 'p22', empresa: 'MesoSupply Chile',     contacto: 'Sra. Daniela Pérez',   email: 'ventas@mesosupply.cl',           pais: 'Chile',     ciudad: 'Santiago',         precio: 83, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 15, entregaDias: 5, observaciones: 'Filorga y NCTF. Envío refrigerado garantizado.' },
   ],
   general: [
-    { id: 'p22', empresa: 'Insumos Médicos Plus',     contacto: 'Sr. Carlos Herrera',   email: 'ventas@insumosplus.com.ar',     pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 8, moneda: 'USD', unidad: 'caja 100u', stockDisponible: 200, entregaDias: 1, observaciones: 'Todo tipo de agujas, jeringas y descartables. Precios mayoristas.' },
-    { id: 'p23', empresa: 'Farmacia Central',         contacto: 'Sra. Ana Rodríguez',   email: 'farmacia@central.com.ar',       pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 10, moneda: 'USD', unidad: 'caja 100u', stockDisponible: 80, entregaDias: 1, observaciones: 'Entrega el mismo día antes de las 15hs. Variedad completa.' },
-    { id: 'p24', empresa: 'MedSupply México',         contacto: 'Sr. Jorge Mendoza',    email: 'ventas@medsupply.mx',           pais: 'México',    ciudad: 'Monterrey',      precio: 7, moneda: 'USD', unidad: 'caja 100u', stockDisponible: 500, entregaDias: 5, observaciones: 'Precio mayorista más bajo. Envío a toda LATAM.' },
+    { id: 'p23', empresa: 'CYM Distribuidora',    contacto: 'Equipo comercial',     email: 'info@cymdistribuidora.com.ar',   pais: 'Argentina', ciudad: 'Posadas',          precio: 7,  moneda: 'USD', unidad: 'caja 100u', stockDisponible: 300, entregaDias: 2, observaciones: 'Descartables y complementos para estética. Venta mayorista exclusiva a profesionales. cymdistribuidora.com.ar' },
+    { id: 'p24', empresa: 'BACIMED',              contacto: 'Sector insumos',       email: 'ventas@bacimed.com.ar',          pais: 'Argentina', ciudad: 'Buenos Aires',     precio: 9,  moneda: 'USD', unidad: 'caja 100u', stockDisponible: 150, entregaDias: 1, observaciones: 'Agujas, jeringas, guantes y descartables en stock permanente. bacimed.com.ar' },
+    { id: 'p25', empresa: 'Austral Médica SA',    contacto: 'Ventas médica',        email: 'info@australmedicasa.com.ar',    pais: 'Argentina', ciudad: 'Buenos Aires',     precio: 10, moneda: 'USD', unidad: 'caja 100u', stockDisponible: 100, entregaDias: 1, observaciones: 'Insumos descartables de alta calidad. Entrega 24h CABA. australmedicasa.com.ar' },
+    { id: 'p26', empresa: 'MedSupply México',     contacto: 'Sr. Jorge Mendoza',    email: 'ventas@medsupply.mx',            pais: 'México',    ciudad: 'Monterrey',        precio: 6,  moneda: 'USD', unidad: 'caja 100u', stockDisponible: 500, entregaDias: 7, observaciones: 'Precio mayorista más bajo. Envío a toda LATAM.' },
   ],
 }
 
@@ -905,39 +915,39 @@ export const DEMO_QUOTE_RESPONSES: QuoteResponse[] = [
   {
     id: 'qr1',
     proveedorId: 'p1',
-    empresa: 'MedEstética SA',
-    emailDe: 'ventas@medest.com.ar',
+    empresa: 'GS Distribuidor',
+    emailDe: 'ventas@gsdistribuidor.com',
     emailPara: 'hola@aestheticiq.app',
     fechaEnviado: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     fechaRespuesta: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     asunto: 'Solicitud de cotización — Toxina Botulínica',
-    emailEnviado: `Estimada Lic. Daniela Vega,
+    emailEnviado: `Estimado equipo de GS Distribuidor,
 
 Me comunico desde Clínica Demo · Aesthetic IQ. Estamos evaluando proveedores de toxina botulínica y nos interesa recibir una cotización actualizada para:
 
 - Botox® 100U (aproximadamente 8-10 unidades mensuales)
 - Dysport® 500U (aproximadamente 4 unidades mensuales)
 
-Necesitamos precio unitario, condiciones de pago, tiempo de entrega y disponibilidad de stock.
+Adjunto matrícula profesional. Necesitamos precio unitario, condiciones de pago, entrega con cadena de frío y disponibilidad de stock.
 
 Quedo a disposición.
 
 Dra. Valentina Ruiz
 Clínica Demo · Aesthetic IQ
 Buenos Aires, Argentina`,
-    respuesta: `Estimada Dra. Ruiz, muchas gracias por contactarnos.
+    respuesta: `Estimada Dra. Ruiz, muchas gracias por contactarnos desde Aesthetic IQ.
 
-Le enviamos nuestra cotización actualizada:
+Cotización para su clínica:
 
-• Botox® 100U: USD 148 / vial (stock: 40 unidades)
-• Dysport® 500U: USD 160 / vial (stock: 12 unidades)
+• Dysport® 500U: USD 142 / vial (stock: 30 unidades disponibles)
+• Botox® 100U: consultar disponibilidad según lote
 
-Condiciones: pago a 30 días. Entrega en CABA/GBA en 48hs con cadena de frío certificada. Para pedidos superiores a USD 1.000 no cobramos flete.
+Condiciones: pago con tarjeta o transferencia. Entrega CABA/GBA en 48hs con cadena de frío documentada. Para pedidos de 5+ viales no cobramos logística.
 
-Podemos coordinar una visita de nuestro asesor cuando lo prefiera.
+Podemos coordinar por WhatsApp para mayor agilidad.
 
-Lic. Daniela Vega — MedEstética SA`,
-    precio: 148,
+Equipo GS Distribuidor — gsdistribuidor.com`,
+    precio: 142,
     moneda: 'USD',
     unidad: 'vial 100U',
     disponibilidad: 'Stock inmediato · entrega 48hs',
@@ -945,13 +955,13 @@ Lic. Daniela Vega — MedEstética SA`,
   {
     id: 'qr2',
     proveedorId: 'p4',
-    empresa: 'ImportMed Latam',
-    emailDe: 'cotizaciones@importmed.com',
+    empresa: 'BACIMED',
+    emailDe: 'ventas@bacimed.com.ar',
     emailPara: 'hola@aestheticiq.app',
     fechaEnviado: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     fechaRespuesta: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
     asunto: 'Solicitud de cotización — Toxina Botulínica',
-    emailEnviado: `Estimado Sr. Roberto Fuentes,
+    emailEnviado: `Estimado equipo de BACIMED,
 
 Me comunico desde Clínica Demo · Aesthetic IQ. Estamos evaluando proveedores de toxina botulínica y nos interesa recibir una cotización actualizada para:
 
@@ -965,19 +975,20 @@ Quedo a disposición.
 Dra. Valentina Ruiz
 Clínica Demo · Aesthetic IQ
 Buenos Aires, Argentina`,
-    respuesta: `Hola Dra. Ruiz, recibimos su consulta. Somos importadores directos de Galderma para LATAM.
+    respuesta: `Estimada Dra. Ruiz, gracias por contactarse con BACIMED.
 
-Cotización:
-• Botox® 100U: USD 137 / vial
-• Dysport® 500U: USD 135 / vial
+Como proveedores de insumos médicos para el sector salud, le acercamos nuestra cotización:
 
-Para pedidos de 10+ unidades: 8% de descuento adicional.
-Stock: 60 unidades disponibles. Entrega nacional en 3-5 días hábiles con cadena de frío documentada.
+• Botox® 100U: USD 138 / vial (stock: 40 u.)
+• Dysport® 500U: USD 135 / vial (stock: 25 u.)
 
-Aceptamos transferencia y tarjeta. Factura A.
+Descuento del 5% a partir de 10 unidades, 8% a partir de 20 unidades.
+Entrega CABA/GBA en 24-48hs. Interior del país en 3-5 días hábiles.
+Factura A disponible. Aceptamos transferencia, tarjeta y cheque.
 
-Sr. Roberto Fuentes — ImportMed Latam`,
-    precio: 135,
+Quedamos atentos a su respuesta.
+Sector Insumos — BACIMED · bacimed.com.ar`,
+    precio: 138,
     moneda: 'USD',
     unidad: 'vial 100U',
     disponibilidad: 'Entrega 3-5 días hábiles',
