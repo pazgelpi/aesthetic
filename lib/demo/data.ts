@@ -645,105 +645,258 @@ export const DEMO_KPIS = {
 
 export type StockStatus = 'ok' | 'warn' | 'critical'
 
+export interface Lote {
+  id: string
+  numero: string        // número de lote
+  cantidad: number      // unidades restantes
+  fechaCompra: string   // ISO date
+  vencimiento: string   // ISO date
+  proveedor: string
+  precioUnitario: number // USD
+}
+
 export interface StockItem {
   id: string
   name: string
+  marca: string
   category: 'toxin' | 'filler' | 'peel' | 'prp' | 'mesotherapy' | 'laser' | 'general'
-  stock: number
   unit: string
   monthlyUsage: number
-  costPerUnit: number
-  status: StockStatus
-  // detail fields
-  marca: string
-  proveedor: string
-  lote: string
-  vencimiento: string   // ISO date
-  tratamiento: string   // treatment type key
+  status: StockStatus   // pre-computado sobre stock total
+  lotes: Lote[]
+}
+
+// stock total = sum de lotes
+export function totalStock(item: StockItem): number {
+  return item.lotes.reduce((s, l) => s + l.cantidad, 0)
+}
+
+// costo promedio ponderado por unidad
+export function avgCost(item: StockItem): number {
+  const total = totalStock(item)
+  if (total === 0) return 0
+  const weighted = item.lotes.reduce((s, l) => s + l.precioUnitario * l.cantidad, 0)
+  return Math.round(weighted / total)
 }
 
 export const DEMO_STOCK: StockItem[] = [
   // ── Toxina ──
-  { id: 's1',  name: 'Viales Botox® 100U',          category: 'toxin',       stock: 8,  unit: 'viales',   monthlyUsage: 12, costPerUnit: 145, status: 'ok',       marca: 'Allergan (AbbVie)', proveedor: 'Droguería del Sur SA',      lote: 'LT-BOT-2024-089', vencimiento: '2026-08-31', tratamiento: 'toxin' },
-  { id: 's2',  name: 'Viales Dysport® 500U',         category: 'toxin',       stock: 2,  unit: 'viales',   monthlyUsage: 4,  costPerUnit: 160, status: 'critical',  marca: 'Galderma',         proveedor: 'MedEstética SA',            lote: 'LT-DYS-2024-112', vencimiento: '2026-05-31', tratamiento: 'toxin' },
-  { id: 's3',  name: 'Viales Xeomin® 100U',          category: 'toxin',       stock: 5,  unit: 'viales',   monthlyUsage: 6,  costPerUnit: 138, status: 'ok',       marca: 'Merz Aesthetics',  proveedor: 'BioFarma Distribuidora',    lote: 'LT-XEO-2024-077', vencimiento: '2026-10-15', tratamiento: 'toxin' },
+  {
+    id: 's1', name: 'Viales Botox® 100U', marca: 'Allergan (AbbVie)',
+    category: 'toxin', unit: 'viales', monthlyUsage: 12, status: 'ok',
+    lotes: [
+      { id: 'l1a', numero: 'LT-BOT-2024-089', cantidad: 3, fechaCompra: '2024-09-15', vencimiento: '2026-08-31', proveedor: 'Droguería del Sur SA', precioUnitario: 145 },
+      { id: 'l1b', numero: 'LT-BOT-2025-011', cantidad: 5, fechaCompra: '2025-01-20', vencimiento: '2027-01-15', proveedor: 'Droguería del Sur SA', precioUnitario: 148 },
+    ],
+  },
+  {
+    id: 's2', name: 'Viales Dysport® 500U', marca: 'Galderma',
+    category: 'toxin', unit: 'viales', monthlyUsage: 4, status: 'critical',
+    lotes: [
+      { id: 'l2a', numero: 'LT-DYS-2024-112', cantidad: 2, fechaCompra: '2024-10-03', vencimiento: '2026-05-31', proveedor: 'MedEstética SA', precioUnitario: 160 },
+    ],
+  },
+  {
+    id: 's3', name: 'Viales Xeomin® 100U', marca: 'Merz Aesthetics',
+    category: 'toxin', unit: 'viales', monthlyUsage: 6, status: 'ok',
+    lotes: [
+      { id: 'l3a', numero: 'LT-XEO-2024-077', cantidad: 2, fechaCompra: '2024-08-10', vencimiento: '2026-10-15', proveedor: 'BioFarma Distribuidora', precioUnitario: 138 },
+      { id: 'l3b', numero: 'LT-XEO-2025-003', cantidad: 3, fechaCompra: '2025-02-05', vencimiento: '2027-02-01', proveedor: 'BioFarma Distribuidora', precioUnitario: 140 },
+    ],
+  },
   // ── Filler ──
-  { id: 's4',  name: 'Restylane® Kysse 1ml',         category: 'filler',      stock: 3,  unit: 'jeringas', monthlyUsage: 5,  costPerUnit: 220, status: 'warn',      marca: 'Galderma',         proveedor: 'MedEstética SA',            lote: 'LT-RES-2024-304', vencimiento: '2027-01-20', tratamiento: 'filler' },
-  { id: 's5',  name: 'Juvederm® Ultra 1ml',           category: 'filler',      stock: 5,  unit: 'jeringas', monthlyUsage: 4,  costPerUnit: 215, status: 'ok',       marca: 'Allergan (AbbVie)', proveedor: 'Droguería del Sur SA',      lote: 'LT-JUV-2024-218', vencimiento: '2027-03-10', tratamiento: 'filler' },
-  { id: 's6',  name: 'Teosyal® RHA 3 1ml',           category: 'filler',      stock: 2,  unit: 'jeringas', monthlyUsage: 3,  costPerUnit: 235, status: 'warn',      marca: 'Teoxane',          proveedor: 'Dermocosméticos Arg.',      lote: 'LT-TEO-2024-091', vencimiento: '2026-12-05', tratamiento: 'filler' },
-  { id: 's7',  name: 'Cánulas 25G (caja 20u)',        category: 'filler',      stock: 1,  unit: 'cajas',    monthlyUsage: 2,  costPerUnit: 45,  status: 'critical',  marca: 'TSK Laboratory',   proveedor: 'Insumos Médicos Plus',      lote: 'LT-CAN-2024-560', vencimiento: '2028-06-01', tratamiento: 'filler' },
-  { id: 's8',  name: 'EMLA crema 30g',                category: 'filler',      stock: 4,  unit: 'pomos',    monthlyUsage: 3,  costPerUnit: 28,  status: 'ok',       marca: 'Aspen / AstraZeneca', proveedor: 'Farmacia Central',       lote: 'LT-EML-2024-022', vencimiento: '2026-09-15', tratamiento: 'filler' },
+  {
+    id: 's4', name: 'Restylane® Kysse 1ml', marca: 'Galderma',
+    category: 'filler', unit: 'jeringas', monthlyUsage: 5, status: 'warn',
+    lotes: [
+      { id: 'l4a', numero: 'LT-RES-2024-304', cantidad: 1, fechaCompra: '2024-07-22', vencimiento: '2026-07-20', proveedor: 'MedEstética SA', precioUnitario: 215 },
+      { id: 'l4b', numero: 'LT-RES-2024-411', cantidad: 2, fechaCompra: '2024-11-08', vencimiento: '2027-01-20', proveedor: 'MedEstética SA', precioUnitario: 220 },
+    ],
+  },
+  {
+    id: 's5', name: 'Juvederm® Ultra 1ml', marca: 'Allergan (AbbVie)',
+    category: 'filler', unit: 'jeringas', monthlyUsage: 4, status: 'ok',
+    lotes: [
+      { id: 'l5a', numero: 'LT-JUV-2024-218', cantidad: 2, fechaCompra: '2024-09-01', vencimiento: '2026-09-10', proveedor: 'Droguería del Sur SA', precioUnitario: 210 },
+      { id: 'l5b', numero: 'LT-JUV-2025-019', cantidad: 3, fechaCompra: '2025-01-10', vencimiento: '2027-03-10', proveedor: 'Droguería del Sur SA', precioUnitario: 215 },
+    ],
+  },
+  {
+    id: 's6', name: 'Teosyal® RHA 3 1ml', marca: 'Teoxane',
+    category: 'filler', unit: 'jeringas', monthlyUsage: 3, status: 'warn',
+    lotes: [
+      { id: 'l6a', numero: 'LT-TEO-2024-091', cantidad: 2, fechaCompra: '2024-10-15', vencimiento: '2026-12-05', proveedor: 'Dermocosméticos Arg.', precioUnitario: 235 },
+    ],
+  },
+  {
+    id: 's7', name: 'Cánulas 25G (caja 20u)', marca: 'TSK Laboratory',
+    category: 'filler', unit: 'cajas', monthlyUsage: 2, status: 'critical',
+    lotes: [
+      { id: 'l7a', numero: 'LT-CAN-2024-560', cantidad: 1, fechaCompra: '2024-12-01', vencimiento: '2028-06-01', proveedor: 'Insumos Médicos Plus', precioUnitario: 45 },
+    ],
+  },
+  {
+    id: 's8', name: 'EMLA crema 30g', marca: 'Aspen / AstraZeneca',
+    category: 'filler', unit: 'pomos', monthlyUsage: 3, status: 'ok',
+    lotes: [
+      { id: 'l8a', numero: 'LT-EML-2024-022', cantidad: 2, fechaCompra: '2024-06-10', vencimiento: '2026-06-15', proveedor: 'Farmacia Central', precioUnitario: 27 },
+      { id: 'l8b', numero: 'LT-EML-2024-155', cantidad: 2, fechaCompra: '2024-11-20', vencimiento: '2026-09-15', proveedor: 'Farmacia Central', precioUnitario: 28 },
+    ],
+  },
   // ── Peeling ──
-  { id: 's9',  name: 'Ácido glicólico 30% 100ml',    category: 'peel',        stock: 2,  unit: 'frascos',  monthlyUsage: 4,  costPerUnit: 55,  status: 'warn',      marca: 'Dermalogica',      proveedor: 'Cosméticos Profesionales',  lote: 'LT-AGL-2024-188', vencimiento: '2025-11-30', tratamiento: 'peel' },
-  { id: 's10', name: 'Ácido salicílico 20% 100ml',   category: 'peel',        stock: 6,  unit: 'frascos',  monthlyUsage: 3,  costPerUnit: 42,  status: 'ok',       marca: 'Dermalogica',      proveedor: 'Cosméticos Profesionales',  lote: 'LT-ASA-2024-190', vencimiento: '2026-03-20', tratamiento: 'peel' },
-  { id: 's11', name: 'Neutralizador peeling 100ml',  category: 'peel',        stock: 1,  unit: 'frascos',  monthlyUsage: 3,  costPerUnit: 38,  status: 'critical',  marca: 'Jan Marini',       proveedor: 'BeautyPro Distribuciones',  lote: 'LT-NEU-2024-033', vencimiento: '2025-08-10', tratamiento: 'peel' },
+  {
+    id: 's9', name: 'Ácido glicólico 30% 100ml', marca: 'Dermalogica',
+    category: 'peel', unit: 'frascos', monthlyUsage: 4, status: 'warn',
+    lotes: [
+      { id: 'l9a', numero: 'LT-AGL-2024-188', cantidad: 2, fechaCompra: '2024-08-25', vencimiento: '2025-11-30', proveedor: 'Cosméticos Profesionales', precioUnitario: 55 },
+    ],
+  },
+  {
+    id: 's10', name: 'Ácido salicílico 20% 100ml', marca: 'Dermalogica',
+    category: 'peel', unit: 'frascos', monthlyUsage: 3, status: 'ok',
+    lotes: [
+      { id: 'l10a', numero: 'LT-ASA-2024-190', cantidad: 3, fechaCompra: '2024-09-05', vencimiento: '2025-12-20', proveedor: 'Cosméticos Profesionales', precioUnitario: 42 },
+      { id: 'l10b', numero: 'LT-ASA-2025-007', cantidad: 3, fechaCompra: '2025-01-15', vencimiento: '2026-03-20', proveedor: 'Cosméticos Profesionales', precioUnitario: 44 },
+    ],
+  },
+  {
+    id: 's11', name: 'Neutralizador peeling 100ml', marca: 'Jan Marini',
+    category: 'peel', unit: 'frascos', monthlyUsage: 3, status: 'critical',
+    lotes: [
+      { id: 'l11a', numero: 'LT-NEU-2024-033', cantidad: 1, fechaCompra: '2024-07-01', vencimiento: '2025-08-10', proveedor: 'BeautyPro Distribuciones', precioUnitario: 38 },
+    ],
+  },
   // ── PRP ──
-  { id: 's12', name: 'Kits PRP centrifugación',      category: 'prp',         stock: 5,  unit: 'kits',     monthlyUsage: 6,  costPerUnit: 85,  status: 'warn',      marca: 'RegenKit® (Regen Lab)', proveedor: 'BioCell Argentina',    lote: 'LT-PRP-2024-441', vencimiento: '2026-07-01', tratamiento: 'prp' },
+  {
+    id: 's12', name: 'Kits PRP centrifugación', marca: 'RegenKit® (Regen Lab)',
+    category: 'prp', unit: 'kits', monthlyUsage: 6, status: 'warn',
+    lotes: [
+      { id: 'l12a', numero: 'LT-PRP-2024-398', cantidad: 2, fechaCompra: '2024-08-18', vencimiento: '2026-05-01', proveedor: 'BioCell Argentina', precioUnitario: 82 },
+      { id: 'l12b', numero: 'LT-PRP-2024-441', cantidad: 3, fechaCompra: '2024-10-30', vencimiento: '2026-07-01', proveedor: 'BioCell Argentina', precioUnitario: 85 },
+    ],
+  },
   // ── Mesoterapia ──
-  { id: 's13', name: 'NCTF 135 HA (Filorga)',         category: 'mesotherapy', stock: 3,  unit: 'viales',   monthlyUsage: 8,  costPerUnit: 95,  status: 'critical',  marca: 'Institut Esthederm (Filorga)', proveedor: 'MedEstética SA', lote: 'LT-NCT-2024-205', vencimiento: '2026-04-30', tratamiento: 'mesotherapy' },
+  {
+    id: 's13', name: 'NCTF 135 HA (Filorga)', marca: 'Institut Esthederm (Filorga)',
+    category: 'mesotherapy', unit: 'viales', monthlyUsage: 8, status: 'critical',
+    lotes: [
+      { id: 'l13a', numero: 'LT-NCT-2024-201', cantidad: 1, fechaCompra: '2024-09-12', vencimiento: '2026-03-15', proveedor: 'MedEstética SA', precioUnitario: 92 },
+      { id: 'l13b', numero: 'LT-NCT-2024-205', cantidad: 2, fechaCompra: '2024-11-05', vencimiento: '2026-04-30', proveedor: 'MedEstética SA', precioUnitario: 95 },
+    ],
+  },
   // ── General ──
-  { id: 's14', name: 'Jeringas tuberculina 1ml',     category: 'general',     stock: 4,  unit: 'cajas',    monthlyUsage: 3,  costPerUnit: 12,  status: 'ok',       marca: 'BD (Becton Dickinson)', proveedor: 'Insumos Médicos Plus',  lote: 'LT-JER-2024-889', vencimiento: '2027-12-01', tratamiento: 'general' },
-  { id: 's15', name: 'Agujas 30G x ½" (caja 100u)',  category: 'general',     stock: 1,  unit: 'cajas',    monthlyUsage: 3,  costPerUnit: 9,   status: 'critical',  marca: 'BD (Becton Dickinson)', proveedor: 'Insumos Médicos Plus',  lote: 'LT-AGU-2024-102', vencimiento: '2027-08-15', tratamiento: 'general' },
-  { id: 's16', name: 'Guantes nitrilo M (caja 100u)', category: 'general',    stock: 6,  unit: 'cajas',    monthlyUsage: 4,  costPerUnit: 18,  status: 'ok',       marca: 'Ansell',           proveedor: 'Farmacia Central',          lote: 'LT-GUA-2024-774', vencimiento: '2028-01-01', tratamiento: 'general' },
-  { id: 's17', name: 'Gasas estériles (paq. 10u)',   category: 'general',     stock: 14, unit: 'paquetes', monthlyUsage: 8,  costPerUnit: 6,   status: 'ok',       marca: 'Hartmann',         proveedor: 'Farmacia Central',          lote: 'LT-GAS-2024-331', vencimiento: '2027-06-30', tratamiento: 'general' },
-  { id: 's18', name: 'Barbijos descartables (50u)',  category: 'general',     stock: 2,  unit: 'cajas',    monthlyUsage: 2,  costPerUnit: 22,  status: 'warn',      marca: 'Kimberly-Clark',   proveedor: 'Insumos Médicos Plus',      lote: 'LT-BAR-2024-667', vencimiento: '2026-11-20', tratamiento: 'general' },
+  {
+    id: 's14', name: 'Jeringas tuberculina 1ml', marca: 'BD (Becton Dickinson)',
+    category: 'general', unit: 'cajas', monthlyUsage: 3, status: 'ok',
+    lotes: [
+      { id: 'l14a', numero: 'LT-JER-2024-771', cantidad: 2, fechaCompra: '2024-07-08', vencimiento: '2027-06-01', proveedor: 'Insumos Médicos Plus', precioUnitario: 12 },
+      { id: 'l14b', numero: 'LT-JER-2024-889', cantidad: 2, fechaCompra: '2024-12-03', vencimiento: '2027-12-01', proveedor: 'Insumos Médicos Plus', precioUnitario: 12 },
+    ],
+  },
+  {
+    id: 's15', name: 'Agujas 30G x ½" (caja 100u)', marca: 'BD (Becton Dickinson)',
+    category: 'general', unit: 'cajas', monthlyUsage: 3, status: 'critical',
+    lotes: [
+      { id: 'l15a', numero: 'LT-AGU-2024-102', cantidad: 1, fechaCompra: '2024-10-22', vencimiento: '2027-08-15', proveedor: 'Insumos Médicos Plus', precioUnitario: 9 },
+    ],
+  },
+  {
+    id: 's16', name: 'Guantes nitrilo M (caja 100u)', marca: 'Ansell',
+    category: 'general', unit: 'cajas', monthlyUsage: 4, status: 'ok',
+    lotes: [
+      { id: 'l16a', numero: 'LT-GUA-2024-601', cantidad: 3, fechaCompra: '2024-08-01', vencimiento: '2027-08-01', proveedor: 'Farmacia Central', precioUnitario: 17 },
+      { id: 'l16b', numero: 'LT-GUA-2024-774', cantidad: 3, fechaCompra: '2024-11-15', vencimiento: '2028-01-01', proveedor: 'Farmacia Central', precioUnitario: 18 },
+    ],
+  },
+  {
+    id: 's17', name: 'Gasas estériles (paq. 10u)', marca: 'Hartmann',
+    category: 'general', unit: 'paquetes', monthlyUsage: 8, status: 'ok',
+    lotes: [
+      { id: 'l17a', numero: 'LT-GAS-2024-201', cantidad: 6, fechaCompra: '2024-07-20', vencimiento: '2026-07-30', proveedor: 'Farmacia Central', precioUnitario: 6 },
+      { id: 'l17b', numero: 'LT-GAS-2024-331', cantidad: 8, fechaCompra: '2024-10-10', vencimiento: '2027-06-30', proveedor: 'Farmacia Central', precioUnitario: 6 },
+    ],
+  },
+  {
+    id: 's18', name: 'Barbijos descartables (50u)', marca: 'Kimberly-Clark',
+    category: 'general', unit: 'cajas', monthlyUsage: 2, status: 'warn',
+    lotes: [
+      { id: 'l18a', numero: 'LT-BAR-2024-667', cantidad: 2, fechaCompra: '2024-09-28', vencimiento: '2026-11-20', proveedor: 'Insumos Médicos Plus', precioUnitario: 22 },
+    ],
+  },
 ]
 
-// ─── Competitive Intelligence — proveedores por producto ─────────────────────
+// ─── Competitive Intelligence — proveedores por categoría / país ──────────────
+
+export const CI_PAISES = ['Argentina', 'México', 'Colombia', 'Chile'] as const
+export type CIPais = typeof CI_PAISES[number]
 
 export interface CIProvider {
   id: string
   empresa: string
   contacto: string
   email: string
+  pais: CIPais
+  ciudad: string
   precio: number
-  moneda: 'USD' | 'ARS'
+  moneda: 'USD' | 'ARS' | 'MXN' | 'COP' | 'CLP'
   unidad: string
   stockDisponible: number
   entregaDias: number
-  zona: string
   observaciones: string
 }
 
 export const DEMO_CI_PROVIDERS: Record<string, CIProvider[]> = {
   toxin: [
-    { id: 'p1', empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',      precio: 148, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 40, entregaDias: 2, zona: 'CABA / GBA',         observaciones: 'Distribuidor oficial Allergan. Pago a 30 días.' },
-    { id: 'p2', empresa: 'Droguería del Sur SA',     contacto: 'Sr. Martín Álvarez',   email: 'compras@drogueriadelsur.com', precio: 142, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 22, entregaDias: 3, zona: 'Nacional',           observaciones: 'Precio incluye flete hasta $500 USD. Stock limitado Dysport.' },
-    { id: 'p3', empresa: 'BioFarma Distribuidora',  contacto: 'Dra. Carla Suárez',    email: 'info@biofarma.ar',           precio: 155, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 15, entregaDias: 1, zona: 'CABA',               observaciones: 'Entrega en 24h. Incluye cadena de frío certificada.' },
-    { id: 'p4', empresa: 'ImportMed Latam',          contacto: 'Sr. Roberto Fuentes',  email: 'cotizaciones@importmed.com', precio: 135, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 60, entregaDias: 5, zona: 'Nacional / Import.', observaciones: 'Precio más bajo del mercado. Importación directa Galderma.' },
+    { id: 'p1',  empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',           pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 148, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 40, entregaDias: 2, observaciones: 'Distribuidor oficial Allergan. Pago a 30 días. Cadena de frío garantizada.' },
+    { id: 'p2',  empresa: 'Droguería del Sur SA',     contacto: 'Sr. Martín Álvarez',   email: 'compras@drogueriadelsur.com',     pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 142, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 22, entregaDias: 3, observaciones: 'Precio incluye flete hasta $500 USD. Stock Botox y Dysport.' },
+    { id: 'p3',  empresa: 'BioFarma Distribuidora',  contacto: 'Dra. Carla Suárez',    email: 'info@biofarma.ar',               pais: 'Argentina', ciudad: 'Córdoba',        precio: 155, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 15, entregaDias: 1, observaciones: 'Entrega en 24h. Cadena de frío certificada ISO 13485.' },
+    { id: 'p4',  empresa: 'ImportMed Latam',          contacto: 'Sr. Roberto Fuentes',  email: 'cotizaciones@importmed.com',      pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 135, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 60, entregaDias: 5, observaciones: 'Importación directa Galderma. Precio más bajo. Descuento por volumen.' },
+    { id: 'p5',  empresa: 'Biotecmed México',         contacto: 'Dr. Luis Herrera',     email: 'ventas@biotecmed.mx',            pais: 'México',    ciudad: 'Ciudad de México', precio: 138, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 35, entregaDias: 4, observaciones: 'Distribuidor Allergan MX. Importación disponible a Argentina.' },
+    { id: 'p6',  empresa: 'Dermo Supply Colombia',   contacto: 'Lic. Andrea Torres',   email: 'info@dermosupply.co',            pais: 'Colombia',  ciudad: 'Bogotá',         precio: 132, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 28, entregaDias: 6, observaciones: 'Precio más competitivo LATAM. Stock permanente Botox y Dysport.' },
+    { id: 'p7',  empresa: 'MedPro Chile',             contacto: 'Sra. Camila Vidal',    email: 'contacto@medprochile.cl',        pais: 'Chile',     ciudad: 'Santiago',       precio: 145, moneda: 'USD', unidad: 'vial 100U', stockDisponible: 20, entregaDias: 3, observaciones: 'Distribuidor Merz y Galderma en Chile. Envío refrigerado.' },
   ],
   filler: [
-    { id: 'p5', empresa: 'Dermocosméticos Arg.',     contacto: 'Lic. Valentina Cruz',  email: 'ventas@dermocos.com.ar',    precio: 210, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 18, entregaDias: 2, zona: 'CABA / GBA',       observaciones: 'Distribuidor oficial Teoxane. Incluye capacitación.' },
-    { id: 'p6', empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',      precio: 218, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 30, entregaDias: 2, zona: 'Nacional',         observaciones: 'Stock Restylane y Juvederm disponible. Pago a 30/60 días.' },
-    { id: 'p7', empresa: 'BeautyPro Distribuciones', contacto: 'Sra. Inés Morales',   email: 'pedidos@beautypro.ar',      precio: 205, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 12, entregaDias: 3, zona: 'Nacional',         observaciones: 'Precio especial por volumen (+10 jeringas). Variedad de marcas.' },
+    { id: 'p8',  empresa: 'Dermocosméticos Arg.',     contacto: 'Lic. Valentina Cruz',  email: 'ventas@dermocos.com.ar',         pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 210, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 18, entregaDias: 2, observaciones: 'Distribuidor oficial Teoxane. Incluye capacitación y soporte.' },
+    { id: 'p9',  empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',           pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 218, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 30, entregaDias: 2, observaciones: 'Stock Restylane y Juvederm. Pago a 30/60 días.' },
+    { id: 'p10', empresa: 'BeautyPro Distribuciones', contacto: 'Sra. Inés Morales',   email: 'pedidos@beautypro.ar',           pais: 'Argentina', ciudad: 'Rosario',        precio: 205, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 12, entregaDias: 3, observaciones: 'Precio especial por volumen (+10 jeringas). Variedad de marcas.' },
+    { id: 'p11', empresa: 'Estetica Supply MX',      contacto: 'Dr. Alejandro Ruiz',   email: 'ventas@esteticasupply.mx',       pais: 'México',    ciudad: 'Guadalajara',    precio: 198, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 25, entregaDias: 5, observaciones: 'Galderma y Juvederm. Precio competitivo con envío a LATAM.' },
+    { id: 'p12', empresa: 'FillerPro Colombia',      contacto: 'Dra. Sofía Molina',    email: 'info@fillerpro.co',              pais: 'Colombia',  ciudad: 'Medellín',       precio: 195, moneda: 'USD', unidad: 'jeringa 1ml', stockDisponible: 40, entregaDias: 5, observaciones: 'Mejor precio filler en LATAM. Stock garantizado Restylane.' },
   ],
   peel: [
-    { id: 'p8', empresa: 'Cosméticos Profesionales', contacto: 'Sr. Diego Ramos',      email: 'ventas@cosmpro.com.ar',     precio: 48,  moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 50, entregaDias: 2, zona: 'Nacional',        observaciones: 'Línea completa AHA/BHA. Descuento 10% por compra de set.' },
-    { id: 'p9', empresa: 'BeautyPro Distribuciones', contacto: 'Sra. Inés Morales',   email: 'pedidos@beautypro.ar',      precio: 52,  moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 35, entregaDias: 3, zona: 'Nacional',        observaciones: 'Incluye neutralizador de regalo por compra de 6+ frascos.' },
+    { id: 'p13', empresa: 'Cosméticos Profesionales', contacto: 'Sr. Diego Ramos',      email: 'ventas@cosmpro.com.ar',         pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 48, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 50, entregaDias: 2, observaciones: 'Línea completa AHA/BHA. Descuento 10% por compra de set.' },
+    { id: 'p14', empresa: 'BeautyPro Distribuciones', contacto: 'Sra. Inés Morales',   email: 'pedidos@beautypro.ar',          pais: 'Argentina', ciudad: 'Rosario',        precio: 52, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 35, entregaDias: 3, observaciones: 'Neutralizador de regalo por compra de 6+ frascos.' },
+    { id: 'p15', empresa: 'DermaChem México',         contacto: 'Lic. Patricia Soto',   email: 'ventas@dermachem.mx',           pais: 'México',    ciudad: 'Ciudad de México', precio: 45, moneda: 'USD', unidad: 'frasco 100ml', stockDisponible: 80, entregaDias: 6, observaciones: 'Precio más bajo del mercado. AHA y BHA profesionales.' },
   ],
   prp: [
-    { id: 'p10', empresa: 'BioCell Argentina',       contacto: 'Dr. Gustavo Ríos',     email: 'info@biocell.com.ar',       precio: 78,  moneda: 'USD', unidad: 'kit',         stockDisponible: 25, entregaDias: 2, zona: 'Nacional',        observaciones: 'Distribuidor oficial RegenKit. Incluye soporte técnico.' },
-    { id: 'p11', empresa: 'MedLab Insumos',          contacto: 'Lic. Paula Gómez',     email: 'compras@medlab.ar',         precio: 82,  moneda: 'USD', unidad: 'kit',         stockDisponible: 10, entregaDias: 1, zona: 'CABA',            observaciones: 'Kits compatibles con centrifugadoras Hettich y Thermo.' },
+    { id: 'p16', empresa: 'BioCell Argentina',        contacto: 'Dr. Gustavo Ríos',     email: 'info@biocell.com.ar',           pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 78, moneda: 'USD', unidad: 'kit', stockDisponible: 25, entregaDias: 2, observaciones: 'Distribuidor oficial RegenKit. Incluye soporte técnico.' },
+    { id: 'p17', empresa: 'MedLab Insumos',           contacto: 'Lic. Paula Gómez',     email: 'compras@medlab.ar',             pais: 'Argentina', ciudad: 'Mendoza',        precio: 82, moneda: 'USD', unidad: 'kit', stockDisponible: 10, entregaDias: 1, observaciones: 'Kits compatibles con centrifugadoras Hettich y Thermo.' },
+    { id: 'p18', empresa: 'RegenCell Colombia',       contacto: 'Dr. Sebastián López',  email: 'ventas@regencell.co',           pais: 'Colombia',  ciudad: 'Bogotá',         precio: 74, moneda: 'USD', unidad: 'kit', stockDisponible: 30, entregaDias: 5, observaciones: 'Importación directa Regen Lab. Precio más bajo.' },
   ],
   mesotherapy: [
-    { id: 'p12', empresa: 'MedEstética SA',          contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',      precio: 88,  moneda: 'USD', unidad: 'vial 3ml',    stockDisponible: 20, entregaDias: 2, zona: 'CABA / GBA',      observaciones: 'NCTF 135HA y 135+ disponible. Distribuidor oficial Filorga.' },
-    { id: 'p13', empresa: 'ImportMed Latam',         contacto: 'Sr. Roberto Fuentes',  email: 'cotizaciones@importmed.com', precio: 82, moneda: 'USD', unidad: 'vial 3ml',    stockDisponible: 45, entregaDias: 4, zona: 'Nacional',        observaciones: 'Importación directa. Precio más bajo. Stock garantizado.' },
+    { id: 'p19', empresa: 'MedEstética SA',           contacto: 'Lic. Daniela Vega',    email: 'ventas@medest.com.ar',          pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 88, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 20, entregaDias: 2, observaciones: 'NCTF 135HA y 135+ disponible. Distribuidor oficial Filorga.' },
+    { id: 'p20', empresa: 'ImportMed Latam',          contacto: 'Sr. Roberto Fuentes',  email: 'cotizaciones@importmed.com',    pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 82, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 45, entregaDias: 4, observaciones: 'Importación directa. Precio más bajo. Stock garantizado.' },
+    { id: 'p21', empresa: 'MesoSupply Chile',         contacto: 'Sra. Daniela Pérez',   email: 'ventas@mesosupply.cl',          pais: 'Chile',     ciudad: 'Santiago',       precio: 85, moneda: 'USD', unidad: 'vial 3ml', stockDisponible: 15, entregaDias: 4, observaciones: 'Filorga y NCTF. Envío refrigerado garantizado.' },
   ],
   general: [
-    { id: 'p14', empresa: 'Insumos Médicos Plus',    contacto: 'Sr. Carlos Herrera',   email: 'ventas@insumosplus.com.ar', precio: 8,   moneda: 'USD', unidad: 'caja 100u',   stockDisponible: 200, entregaDias: 1, zona: 'Nacional',       observaciones: 'Todo tipo de agujas, jeringas y descartables. Precios mayoristas.' },
-    { id: 'p15', empresa: 'Farmacia Central',        contacto: 'Sra. Ana Rodríguez',   email: 'farmacia@central.com.ar',   precio: 10,  moneda: 'USD', unidad: 'caja 100u',   stockDisponible: 80, entregaDias: 1, zona: 'CABA',            observaciones: 'Entrega el mismo día antes de las 15hs. Variedad completa.' },
+    { id: 'p22', empresa: 'Insumos Médicos Plus',     contacto: 'Sr. Carlos Herrera',   email: 'ventas@insumosplus.com.ar',     pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 8, moneda: 'USD', unidad: 'caja 100u', stockDisponible: 200, entregaDias: 1, observaciones: 'Todo tipo de agujas, jeringas y descartables. Precios mayoristas.' },
+    { id: 'p23', empresa: 'Farmacia Central',         contacto: 'Sra. Ana Rodríguez',   email: 'farmacia@central.com.ar',       pais: 'Argentina', ciudad: 'Buenos Aires',   precio: 10, moneda: 'USD', unidad: 'caja 100u', stockDisponible: 80, entregaDias: 1, observaciones: 'Entrega el mismo día antes de las 15hs. Variedad completa.' },
+    { id: 'p24', empresa: 'MedSupply México',         contacto: 'Sr. Jorge Mendoza',    email: 'ventas@medsupply.mx',           pais: 'México',    ciudad: 'Monterrey',      precio: 7, moneda: 'USD', unidad: 'caja 100u', stockDisponible: 500, entregaDias: 5, observaciones: 'Precio mayorista más bajo. Envío a toda LATAM.' },
   ],
 }
 
 export interface QuoteResponse {
   id: string
+  proveedorId: string
   empresa: string
-  email: string
+  emailDe: string
+  emailPara: string
+  fechaEnviado: string
   fechaRespuesta: string
   asunto: string
-  cuerpo: string
+  emailEnviado: string   // texto del email que se envió
+  respuesta: string      // texto de la respuesta recibida
   precio: number
-  moneda: 'USD' | 'ARS'
+  moneda: 'USD' | 'ARS' | 'MXN' | 'COP'
   unidad: string
   disponibilidad: string
 }
@@ -751,23 +904,79 @@ export interface QuoteResponse {
 export const DEMO_QUOTE_RESPONSES: QuoteResponse[] = [
   {
     id: 'qr1',
+    proveedorId: 'p1',
     empresa: 'MedEstética SA',
-    email: 'ventas@medest.com.ar',
+    emailDe: 'ventas@medest.com.ar',
+    emailPara: 'hola@aestheticiq.app',
+    fechaEnviado: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     fechaRespuesta: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    asunto: 'Re: Solicitud de cotización — Toxina Botulínica',
-    cuerpo: 'Estimada Dra. Ruiz, muchas gracias por contactarnos. Le enviamos nuestra cotización actualizada para Botox® 100U y Dysport® 500U. Contamos con stock disponible para entrega inmediata en CABA. Podemos coordinar una visita de nuestro asesor si lo desea.',
+    asunto: 'Solicitud de cotización — Toxina Botulínica',
+    emailEnviado: `Estimada Lic. Daniela Vega,
+
+Me comunico desde Clínica Demo · Aesthetic IQ. Estamos evaluando proveedores de toxina botulínica y nos interesa recibir una cotización actualizada para:
+
+- Botox® 100U (aproximadamente 8-10 unidades mensuales)
+- Dysport® 500U (aproximadamente 4 unidades mensuales)
+
+Necesitamos precio unitario, condiciones de pago, tiempo de entrega y disponibilidad de stock.
+
+Quedo a disposición.
+
+Dra. Valentina Ruiz
+Clínica Demo · Aesthetic IQ
+Buenos Aires, Argentina`,
+    respuesta: `Estimada Dra. Ruiz, muchas gracias por contactarnos.
+
+Le enviamos nuestra cotización actualizada:
+
+• Botox® 100U: USD 148 / vial (stock: 40 unidades)
+• Dysport® 500U: USD 160 / vial (stock: 12 unidades)
+
+Condiciones: pago a 30 días. Entrega en CABA/GBA en 48hs con cadena de frío certificada. Para pedidos superiores a USD 1.000 no cobramos flete.
+
+Podemos coordinar una visita de nuestro asesor cuando lo prefiera.
+
+Lic. Daniela Vega — MedEstética SA`,
     precio: 148,
     moneda: 'USD',
     unidad: 'vial 100U',
-    disponibilidad: 'Stock inmediato',
+    disponibilidad: 'Stock inmediato · entrega 48hs',
   },
   {
     id: 'qr2',
+    proveedorId: 'p4',
     empresa: 'ImportMed Latam',
-    email: 'cotizaciones@importmed.com',
+    emailDe: 'cotizaciones@importmed.com',
+    emailPara: 'hola@aestheticiq.app',
+    fechaEnviado: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     fechaRespuesta: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-    asunto: 'Re: Solicitud de cotización — Toxina Botulínica',
-    cuerpo: 'Hola Dra. Ruiz. Recibimos su consulta. Somos importadores directos de Galderma y podemos ofrecerle el mejor precio del mercado en Dysport® 500U. Para pedidos de 10+ viales aplicamos 8% de descuento adicional. Trabajamos con todas las provincias, entrega en 3-5 días hábiles.',
+    asunto: 'Solicitud de cotización — Toxina Botulínica',
+    emailEnviado: `Estimado Sr. Roberto Fuentes,
+
+Me comunico desde Clínica Demo · Aesthetic IQ. Estamos evaluando proveedores de toxina botulínica y nos interesa recibir una cotización actualizada para:
+
+- Botox® 100U (aproximadamente 8-10 unidades mensuales)
+- Dysport® 500U (aproximadamente 4 unidades mensuales)
+
+Necesitamos precio unitario, condiciones de pago, tiempo de entrega y disponibilidad de stock.
+
+Quedo a disposición.
+
+Dra. Valentina Ruiz
+Clínica Demo · Aesthetic IQ
+Buenos Aires, Argentina`,
+    respuesta: `Hola Dra. Ruiz, recibimos su consulta. Somos importadores directos de Galderma para LATAM.
+
+Cotización:
+• Botox® 100U: USD 137 / vial
+• Dysport® 500U: USD 135 / vial
+
+Para pedidos de 10+ unidades: 8% de descuento adicional.
+Stock: 60 unidades disponibles. Entrega nacional en 3-5 días hábiles con cadena de frío documentada.
+
+Aceptamos transferencia y tarjeta. Factura A.
+
+Sr. Roberto Fuentes — ImportMed Latam`,
     precio: 135,
     moneda: 'USD',
     unidad: 'vial 100U',
