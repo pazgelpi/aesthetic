@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, Users, Syringe, Globe, MessageCircle } from 'lucide-react'
+import { LayoutDashboard, Users, Syringe, Globe, MessageCircle, Package } from 'lucide-react'
 import { DemoBanner } from '@/components/demo/demo-banner'
 import { DEMO_CLINIC, DEMO_PROFESSIONAL } from '@/lib/demo/data'
 
@@ -7,6 +7,7 @@ const navItems = [
   { href: '/demo', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/demo/patients', icon: Users, label: 'Pacientes' },
   { href: '/demo/treatments', icon: Syringe, label: 'Tratamientos' },
+  { href: '/demo/stock', icon: Package, label: 'Stock' },
   { href: '/demo/portal', icon: Globe, label: 'Portal paciente' },
 ]
 
