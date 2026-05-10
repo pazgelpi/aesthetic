@@ -2,7 +2,7 @@
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { use, useState } from 'react'
+import { use, useState, useRef, useCallback } from 'react'
 import { DEMO_TREATMENTS, DEMO_PATIENTS, DEMO_PHOTO_SESSIONS, DEMO_COMPARISONS } from '@/lib/demo/data'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -35,6 +35,16 @@ export default function DemoTreatmentPage({ params }: { params: Promise<{ id: st
   const [generating, setGenerating] = useState(false)
   const [generatingPhase, setGeneratingPhase] = useState(0)
   const [showComparison, setShowComparison] = useState(!!comparison)
+
+  // Pre/Post slider
+  const [sliderPos, setSliderPos] = useState(56)
+  const [photoAngle, setPhotoAngle] = useState(0) // 0=Frontal, 1=45°, 2=Contracción
+  const sliderRef = useRef<HTMLDivElement>(null)
+  const handleSliderMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const pct = Math.max(8, Math.min(92, ((e.clientX - rect.left) / rect.width) * 100))
+    setSliderPos(pct)
+  }, [])
 
   const typeLabel = treatment.treatment_type === 'toxin' ? 'Toxina Botulínica' : 'Filler Facial'
 
@@ -279,52 +289,198 @@ export default function DemoTreatmentPage({ params }: { params: Promise<{ id: st
               </div>
             )}
 
-            {/* Comparison results */}
+            {/* Comparison results — PrePost slider + metrics */}
             {!generating && showComparison && comparison && (
               <>
-                <Card>
-                  <CardHeader><CardTitle className="text-base">Síntesis para la paciente</CardTitle></CardHeader>
-                  <CardContent><p className="text-sm leading-relaxed">{comparison.ai_synthesis_patient}</p></CardContent>
-                </Card>
-                <Card>
-                  <CardHeader><CardTitle className="text-base">Síntesis clínica</CardTitle></CardHeader>
-                  <CardContent><p className="text-sm leading-relaxed">{comparison.ai_synthesis_clinic}</p></CardContent>
-                </Card>
-                <Card>
-                  <CardHeader><CardTitle className="text-base">Métricas objetivas</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {[
-                        { key: 'glabela_change_pct', label: 'Glabela' },
-                        { key: 'frontal_change_pct', label: 'Frontal' },
-                        { key: 'patas_gallo_left_change_pct', label: 'Patas de gallo izq.' },
-                        { key: 'patas_gallo_right_change_pct', label: 'Patas de gallo der.' },
-                      ].map(({ key, label }) => {
-                        const val = (comparison.metrics_json as Record<string, number>)[key]
-                        if (val == null) return null
-                        const improved = val < 0
-                        return (
-                          <div key={key} className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">{label}</span>
-                            <Badge variant={improved ? 'default' : 'secondary'} className="text-xs">
-                              {improved ? '↓' : '↑'} {Math.abs(Math.round(val))}% {improved ? 'mejora' : 'cambio'}
-                            </Badge>
-                          </div>
-                        )
-                      })}
-                      {(comparison.metrics_json as Record<string, number>).symmetry_change != null && (
-                        <>
-                          <Separator />
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Simetría</span>
-                            <Badge variant="outline" className="text-xs">
-                              +{Math.round((comparison.metrics_json as Record<string, number>).symmetry_change * 100) / 100} pts
-                            </Badge>
-                          </div>
-                        </>
-                      )}
+                {/* Draggable slider comparator */}
+                <div
+                  className="rounded-2xl overflow-hidden"
+                  style={{ border: '1px solid var(--hairline-strong)', background: 'var(--paper)' }}
+                >
+                  {/* Header */}
+                  <div className="flex justify-between px-5 py-3.5" style={{ borderBottom: '1px solid var(--hairline)' }}>
+                    <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      Frontal · luz natural · misma hora del día
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      Diferencia: 45 días
+                    </span>
+                  </div>
+
+                  {/* Slider area */}
+                  <div
+                    ref={sliderRef}
+                    className="relative overflow-hidden cursor-ew-resize select-none"
+                    style={{ height: 360 }}
+                    onMouseMove={handleSliderMove}
+                  >
+                    {/* PRE — tan/warm gradient */}
+                    <div
+                      className="absolute inset-0 flex items-end justify-center pb-3"
+                      style={{ background: 'linear-gradient(135deg, #d9c4a8, #c8ad8a)' }}
+                    >
+                      <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(31,26,20,0.55)', textTransform: 'uppercase' }}>
+                        Pre — 25 Mar · Día 0
+                      </span>
                     </div>
-                  </CardContent>
+
+                    {/* POST (clipped to slider pos) — sage/green gradient */}
+                    <div
+                      className="absolute inset-0 flex items-end justify-center pb-3"
+                      style={{
+                        clipPath: `inset(0 ${100 - sliderPos}% 0 0)`,
+                        background: 'linear-gradient(135deg, #c8d4b0, #a8b88a)',
+                      }}
+                    >
+                      <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(31,26,20,0.55)', textTransform: 'uppercase' }}>
+                        Post — 09 May · Día 45
+                      </span>
+                    </div>
+
+                    {/* Handle line + circle */}
+                    <div
+                      className="absolute top-0 bottom-0 pointer-events-none"
+                      style={{ left: `${sliderPos}%`, width: 2, background: 'var(--paper)', boxShadow: '0 0 0 1px var(--ink)' }}
+                    >
+                      <div
+                        className="absolute flex items-center justify-center"
+                        style={{
+                          top: '50%', left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: 36, height: 36,
+                          borderRadius: '50%',
+                          background: 'var(--paper)',
+                          border: '1px solid var(--ink)',
+                          fontSize: 14,
+                          color: 'var(--ink)',
+                        }}
+                      >
+                        ⇆
+                      </div>
+                    </div>
+
+                    {/* Metric overlays */}
+                    <div className="absolute" style={{ top: 50, left: '18%' }}>
+                      <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9.5, letterSpacing: '0.12em', background: 'var(--paper)', padding: '2px 6px', display: 'inline-block', border: '1px solid var(--ink)', color: 'var(--ink-2)' }}>
+                        GLABELA · −67%
+                      </span>
+                    </div>
+                    <div className="absolute" style={{ top: 180, right: '14%' }}>
+                      <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 9.5, letterSpacing: '0.12em', background: 'var(--paper)', padding: '2px 6px', display: 'inline-block', border: '1px solid var(--ink)', color: 'var(--ink-2)' }}>
+                        P. GALLO · −58%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Footer: instruction + angle selector */}
+                  <div className="flex justify-between items-center px-5 py-3.5" style={{ borderTop: '1px solid var(--hairline)' }}>
+                    <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: '0.10em' }}>
+                      ← Arrastrá para comparar
+                    </span>
+                    <div className="flex gap-3.5">
+                      {['Frontal', '45°', 'Contracción'].map((label, i) => (
+                        <button
+                          key={label}
+                          onClick={() => setPhotoAngle(i)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            fontFamily: 'var(--font-jetbrains-mono)',
+                            fontSize: 10.5,
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            color: photoAngle === i ? 'var(--ink)' : 'var(--ink-3)',
+                            borderBottom: photoAngle === i ? '1px solid var(--ink)' : '1px solid transparent',
+                            padding: '2px 4px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Metrics + AI synthesis — 2 column grid */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Metrics table */}
+                  <div
+                    className="rounded-2xl p-5"
+                    style={{ background: 'var(--paper)', border: '1px solid var(--hairline-strong)' }}
+                  >
+                    <p style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10.5, letterSpacing: '0.12em', color: 'var(--ink-3)', textTransform: 'uppercase', marginBottom: 14 }}>
+                      Medición objetiva · MediaPipe
+                    </p>
+                    {[
+                      { key: 'glabela_change_pct', label: 'Glabela', display: '−67%' },
+                      { key: 'frontal_change_pct', label: 'Frontal', display: '−54%' },
+                      { key: 'patas_gallo_left_change_pct', label: 'Patas de gallo L', display: '−61%' },
+                      { key: 'patas_gallo_right_change_pct', label: 'Patas de gallo R', display: '−58%' },
+                    ].map(({ key, label, display }, i) => {
+                      const val = (comparison.metrics_json as Record<string, number>)[key]
+                      const pct = val != null ? Math.min(95, Math.abs(val) * 1.3) : 75
+                      return (
+                        <div
+                          key={key}
+                          className="flex items-center gap-4 py-3"
+                          style={{ borderTop: i === 0 ? 'none' : '1px solid var(--hairline)' }}
+                        >
+                          <span className="flex-1 text-sm">{label}</span>
+                          <div
+                            className="rounded-full overflow-hidden"
+                            style={{ width: 100, height: 5, background: 'var(--cream-2)' }}
+                          >
+                            <div
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ width: `${pct}%`, background: 'var(--terracota)' }}
+                            />
+                          </div>
+                          <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 13, color: 'var(--ink)', minWidth: 40, textAlign: 'right' }}>
+                            {display}
+                          </span>
+                        </div>
+                      )
+                    })}
+                    {(comparison.metrics_json as Record<string, number>).symmetry_change != null && (
+                      <div className="flex items-center gap-4 py-3" style={{ borderTop: '1px solid var(--hairline)' }}>
+                        <span className="flex-1 text-sm">Simetría</span>
+                        <div className="rounded-full overflow-hidden" style={{ width: 100, height: 5, background: 'var(--cream-2)' }}>
+                          <div className="h-full rounded-full" style={{ width: '18%', background: 'var(--oliva)' }} />
+                        </div>
+                        <span style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 13, color: 'var(--ink)', minWidth: 40, textAlign: 'right' }}>+12%</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* AI synthesis dark card */}
+                  <div
+                    className="rounded-2xl p-5 relative overflow-hidden"
+                    style={{ background: 'var(--ink)', color: 'var(--paper)' }}
+                  >
+                    <p style={{ fontFamily: 'var(--font-jetbrains-mono)', fontSize: 10.5, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', marginBottom: 12 }}>
+                      Síntesis IA · borrador editable
+                    </p>
+                    <p
+                      style={{ fontFamily: 'var(--font-instrument-serif)', fontStyle: 'italic', fontSize: 20, lineHeight: 1.35, letterSpacing: '-0.005em', color: 'var(--paper)' }}
+                    >
+                      &ldquo;{comparison.ai_synthesis_clinic || 'A 45 días, la zona del entrecejo muestra una suavización notable. La simetría facial mejoró un 12 %. Tu piel luce descansada — sin perder expresividad.'}&rdquo;
+                    </p>
+                    <div className="flex gap-2 mt-4">
+                      <Button size="sm" className="text-xs rounded-xl" style={{ background: 'var(--terracota)', color: 'white' }} disabled>
+                        Aprobar y enviar
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-xs rounded-xl" style={{ color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.2)' }} disabled>
+                        Editar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Patient synthesis */}
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm">Síntesis para la paciente</CardTitle></CardHeader>
+                  <CardContent><p className="text-sm leading-relaxed text-muted-foreground">{comparison.ai_synthesis_patient}</p></CardContent>
                 </Card>
               </>
             )}
