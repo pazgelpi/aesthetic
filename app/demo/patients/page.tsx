@@ -16,7 +16,7 @@ export default function DemoPatientsPage() {
     <div className="p-7 max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Pacientes</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">3 pacientes activas en esta demo</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{DEMO_PATIENTS.length} pacientes activas en esta demo</p>
       </div>
       <Card>
         <CardHeader className="pb-3">
